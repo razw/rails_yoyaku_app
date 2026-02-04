@@ -1,0 +1,161 @@
+---
+openapi: 3.0.1
+info:
+  title: 予約アプリ API
+  version: v1
+  description: 予約アプリのREST API
+paths:
+  "/csrf":
+    get:
+      summary: CSRFトークンを取得
+      tags:
+      - CSRF
+      description: フロントエンドがAPIリクエスト時に使用するCSRFトークンを取得します
+      responses:
+        '200':
+          description: CSRFトークン取得成功
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/CsrfToken"
+  "/login":
+    post:
+      summary: ログイン
+      tags:
+      - Authentication
+      description: メールアドレスとパスワードでログインします
+      parameters: []
+      responses:
+        '200':
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    "$ref": "#/components/schemas/User"
+                required:
+                - user
+        '401':
+          description: 認証エラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/LoginInput"
+  "/logout":
+    delete:
+      summary: ログアウト
+      tags:
+      - Authentication
+      description: 現在のセッションを終了します
+      responses:
+        '204':
+          description: ログアウト成功
+  "/signup":
+    post:
+      summary: ユーザー登録
+      tags:
+      - Authentication
+      description: 新しいユーザーアカウントを作成します
+      parameters: []
+      responses:
+        '201':
+          description: ユーザー登録成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    "$ref": "#/components/schemas/User"
+                required:
+                - user
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrors"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UserInput"
+servers:
+- url: http://localhost:3000
+  description: Development server
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+      required:
+      - id
+      - name
+      - email
+    UserInput:
+      type: object
+      properties:
+        user:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+              format: email
+            password:
+              type: string
+              minLength: 6
+            password_confirmation:
+              type: string
+          required:
+          - name
+          - email
+          - password
+          - password_confirmation
+      required:
+      - user
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+      - email
+      - password
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    ValidationErrors:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+    CsrfToken:
+      type: object
+      properties:
+        csrf_token:
+          type: string
+      required:
+      - csrf_token
