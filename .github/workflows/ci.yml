@@ -6,7 +6,11 @@ on:
     branches: [ main ]
 
 jobs:
-  scan_ruby:
+  # ===================
+  # API (Rails) Jobs
+  # ===================
+  api-scan:
+    name: API - Security Scan
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -28,7 +32,8 @@ jobs:
       - name: Scan for known security vulnerabilities in gems used
         run: bin/bundler-audit
 
-  lint:
+  api-lint:
+    name: API - Lint
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -59,7 +64,8 @@ jobs:
       - name: Lint code for consistent style
         run: bin/rubocop -f github
 
-  test:
+  api-test:
+    name: API - Test
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -104,6 +110,57 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: rspec-results
+          name: api-rspec-results
           path: api/tmp/rspec_results.xml
           retention-days: 7
+
+  # ===================
+  # Frontend Jobs (TODO: Uncomment when frontend is added)
+  # ===================
+  # frontend-lint:
+  #   name: Frontend - Lint
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: frontend
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: frontend/.node-version
+  #         cache: 'npm'
+  #         cache-dependency-path: frontend/package-lock.json
+  #
+  #     - name: Install dependencies
+  #       run: npm ci
+  #
+  #     - name: Run linter
+  #       run: npm run lint
+  #
+  # frontend-test:
+  #   name: Frontend - Test
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: frontend
+  #
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Set up Node.js
+  #       uses: actions/setup-node@v4
+  #       with:
+  #         node-version-file: frontend/.node-version
+  #         cache: 'npm'
+  #         cache-dependency-path: frontend/package-lock.json
+  #
+  #     - name: Install dependencies
+  #       run: npm ci
+  #
+  #     - name: Run tests
+  #       run: npm test
