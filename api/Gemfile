@@ -64,4 +64,7 @@ group :test do
 
   # Database cleaner for test database management
   gem "database_cleaner-active_record"
+
+  # JUnit formatter for CI test results
+  gem "rspec_junit_formatter"
 end
