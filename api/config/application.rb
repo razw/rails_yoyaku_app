@@ -31,6 +31,6 @@ module Api
 
     # Cookie-based sessions for API clients (e.g. Next.js)
     config.middleware.use ActionDispatch::Cookies
-    config.middleware.use ActionDispatch::Session::CookieStore, config.session_options
+    config.middleware.use ActionDispatch::Session::CookieStore
   end
 end

@@ -4,6 +4,8 @@ class ApplicationController < ActionController::API
 
   protect_from_forgery with: :exception
 
+  skip_forgery_protection if: -> { Rails.env.test? }
+
   private
 
   def current_user
