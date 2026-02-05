@@ -2,6 +2,7 @@ import type {
   LoginInput,
   SignupInput,
   UserResponse,
+  CurrentUserResponse,
   CsrfTokenResponse,
   ErrorResponse,
   ValidationErrorsResponse,
@@ -103,6 +104,14 @@ export class ApiError extends Error {
 
 // Auth API functions
 export const authApi = {
+  /**
+   * Get current logged-in user
+   */
+  getCurrentUser: (): Promise<CurrentUserResponse> =>
+    apiRequest<CurrentUserResponse>("/me", {
+      method: "GET",
+    }),
+
   /**
    * Sign up a new user
    */

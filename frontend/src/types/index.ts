@@ -25,6 +25,10 @@ export interface UserResponse {
   user: User;
 }
 
+export interface CurrentUserResponse {
+  user: User | null;
+}
+
 export interface CsrfTokenResponse {
   csrf_token: string;
 }

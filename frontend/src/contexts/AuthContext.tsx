@@ -6,6 +6,7 @@ import {
   useState,
   useCallback,
   useMemo,
+  useEffect,
   type ReactNode,
 } from "react";
 import { authApi, ApiError } from "@/lib/api";
@@ -14,6 +15,7 @@ import type { User, LoginInput, SignupInput } from "@/types";
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
   login: (input: LoginInput) => Promise<void>;
   signup: (input: SignupInput) => Promise<void>;
@@ -30,7 +32,25 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Check session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await authApi.getCurrentUser();
+        setUser(response.user);
+      } catch {
+        // User is not logged in, that's ok
+        setUser(null);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+
+    checkSession();
+  }, []);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -94,13 +114,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       user,
       isLoading,
+      isInitialized,
       error,
       login,
       signup,
       logout,
       clearError,
     }),
-    [user, isLoading, error, login, signup, logout, clearError]
+    [user, isLoading, isInitialized, error, login, signup, logout, clearError]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
