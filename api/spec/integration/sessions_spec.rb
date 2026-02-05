@@ -3,6 +3,47 @@
 require 'swagger_helper'
 
 RSpec.describe 'Sessions API', type: :request do
+  path '/me' do
+    get '現在のユーザー情報を取得' do
+      tags 'Authentication'
+      produces 'application/json'
+      description 'セッションから現在ログイン中のユーザー情報を取得します'
+
+      response '200', 'ユーザー情報取得成功（ログイン中）' do
+        schema type: :object,
+               properties: {
+                 user: { '$ref' => '#/components/schemas/User' }
+               },
+               required: %w[user]
+
+        before do
+          user = User.create!(
+            name: 'Test User',
+            email: 'test@example.com',
+            password: 'password123',
+            password_confirmation: 'password123'
+          )
+          post '/login', params: { email: 'test@example.com', password: 'password123' }, as: :json
+        end
+
+        run_test!
+      end
+
+      response '200', 'ユーザー情報取得成功（未ログイン）' do
+        schema type: :object,
+               properties: {
+                 user: { type: :null }
+               },
+               required: %w[user]
+
+        run_test! do |response|
+          json = JSON.parse(response.body)
+          expect(json['user']).to be_nil
+        end
+      end
+    end
+  end
+
   path '/login' do
     post 'ログイン' do
       tags 'Authentication'

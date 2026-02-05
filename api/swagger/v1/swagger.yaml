@@ -18,6 +18,25 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/CsrfToken"
+  "/me":
+    get:
+      summary: 現在のユーザー情報を取得
+      tags:
+      - Authentication
+      description: セッションから現在ログイン中のユーザー情報を取得します
+      responses:
+        '200':
+          description: ユーザー情報取得成功（未ログイン）
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    "$ref": "#/components/schemas/User"
+                    type: 'null'
+                required:
+                - user
   "/login":
     post:
       summary: ログイン

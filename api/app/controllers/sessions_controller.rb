@@ -1,4 +1,12 @@
 class SessionsController < ApplicationController
+  def show
+    if current_user
+      render json: { user: user_response(current_user) }, status: :ok
+    else
+      render json: { user: nil }, status: :ok
+    end
+  end
+
   def create
     user = User.find_by(email: session_params[:email].to_s.strip.downcase)
 

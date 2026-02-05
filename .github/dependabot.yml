@@ -14,9 +14,9 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
 
-  # Frontend dependencies (TODO: Uncomment when frontend is added)
-  # - package-ecosystem: npm
-  #   directory: "/frontend"
-  #   schedule:
-  #     interval: weekly
-  #   open-pull-requests-limit: 10
+  # Frontend (Next.js) dependencies
+  - package-ecosystem: npm
+    directory: "/frontend"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 10
