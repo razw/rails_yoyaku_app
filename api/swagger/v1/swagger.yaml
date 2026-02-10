@@ -81,7 +81,14 @@ paths:
       summary: スペース一覧を取得
       tags:
       - Spaces
-      description: 全てのスペースの一覧を取得します
+      description: 全てのスペースの一覧を取得します。nameパラメータでキーワード検索が可能です。
+      parameters:
+      - name: name
+        in: query
+        required: false
+        description: スペース名のキーワード検索
+        schema:
+          type: string
       responses:
         '200':
           description: スペース一覧取得成功

@@ -7,7 +7,9 @@ RSpec.describe 'Spaces API', type: :request do
     get 'スペース一覧を取得' do
       tags 'Spaces'
       produces 'application/json'
-      description '全てのスペースの一覧を取得します'
+      description '全てのスペースの一覧を取得します。nameパラメータでキーワード検索が可能です。'
+
+      parameter name: :name, in: :query, type: :string, required: false, description: 'スペース名のキーワード検索'
 
       response '200', 'スペース一覧取得成功' do
         schema type: :object,

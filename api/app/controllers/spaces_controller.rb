@@ -1,6 +1,7 @@
 class SpacesController < ApplicationController
   def index
     spaces = Space.all
+    spaces = spaces.where("name LIKE ?", "%#{params[:name]}%") if params[:name].present?
     render json: { spaces: spaces.map { |space| space_response(space) } }, status: :ok
   end
 

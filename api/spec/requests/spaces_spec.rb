@@ -26,6 +26,37 @@ RSpec.describe "Spaces", type: :request do
       end
     end
 
+    context "when searching by name" do
+      let!(:studio_a) { create(:space, name: "スタジオA") }
+      let!(:studio_b) { create(:space, name: "スタジオB") }
+      let!(:meeting_room) { create(:space, name: "会議室1") }
+
+      it "returns matching spaces" do
+        get spaces_path(name: "スタジオ"), as: :json
+        json = JSON.parse(response.body)
+        expect(json["spaces"].length).to eq(2)
+      end
+
+      it "returns only exact keyword matches" do
+        get spaces_path(name: "会議室"), as: :json
+        json = JSON.parse(response.body)
+        expect(json["spaces"].length).to eq(1)
+        expect(json["spaces"].first["name"]).to eq("会議室1")
+      end
+
+      it "returns empty array when no match" do
+        get spaces_path(name: "ラウンジ"), as: :json
+        json = JSON.parse(response.body)
+        expect(json["spaces"]).to eq([])
+      end
+
+      it "returns all spaces when name param is empty" do
+        get spaces_path(name: ""), as: :json
+        json = JSON.parse(response.body)
+        expect(json["spaces"].length).to eq(3)
+      end
+    end
+
     context "when no spaces exist" do
       it "returns ok status" do
         get spaces_path, as: :json
