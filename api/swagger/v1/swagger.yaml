@@ -76,6 +76,64 @@ paths:
       responses:
         '204':
           description: ログアウト成功
+  "/spaces":
+    get:
+      summary: スペース一覧を取得
+      tags:
+      - Spaces
+      description: 全てのスペースの一覧を取得します。nameパラメータでキーワード検索が可能です。
+      parameters:
+      - name: name
+        in: query
+        required: false
+        description: スペース名のキーワード検索
+        schema:
+          type: string
+      responses:
+        '200':
+          description: スペース一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  spaces:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Space"
+                required:
+                - spaces
+  "/spaces/{id}":
+    get:
+      summary: スペース詳細を取得
+      tags:
+      - Spaces
+      description: 指定されたIDのスペース詳細を取得します
+      parameters:
+      - name: id
+        in: path
+        description: スペースID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: スペース詳細取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  space:
+                    "$ref": "#/components/schemas/Space"
+                required:
+                - space
+        '404':
+          description: スペースが見つからない
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
   "/signup":
     post:
       summary: ユーザー登録
@@ -178,3 +236,25 @@ components:
           type: string
       required:
       - csrf_token
+    Space:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        capacity:
+          type: integer
+          nullable: true
+        price:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+      required:
+      - id
+      - name
