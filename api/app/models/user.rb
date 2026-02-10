@@ -1,6 +1,9 @@
 class User < ApplicationRecord
   has_secure_password
 
+  has_many :event_participations, dependent: :destroy
+  has_many :events, through: :event_participations
+
   before_validation :normalize_email
 
   validates :name, presence: true
