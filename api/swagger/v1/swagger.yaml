@@ -18,6 +18,165 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/CsrfToken"
+  "/events":
+    get:
+      summary: イベント一覧を取得
+      tags:
+      - Events
+      description: 全てのイベントの一覧を取得します。space_idパラメータでスペースごとに絞り込みが可能です。
+      parameters:
+      - name: space_id
+        in: query
+        required: false
+        description: スペースIDで絞り込み
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: イベント一覧取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  events:
+                    type: array
+                    items:
+                      "$ref": "#/components/schemas/Event"
+                required:
+                - events
+    post:
+      summary: イベントを作成
+      tags:
+      - Events
+      description: 新しいイベントを作成します（要ログイン）
+      parameters: []
+      responses:
+        '201':
+          description: イベント作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+                required:
+                - event
+        '401':
+          description: 未認証エラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrors"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventInput"
+  "/events/{id}":
+    get:
+      summary: イベント詳細を取得
+      tags:
+      - Events
+      description: 指定されたIDのイベント詳細を取得します
+      parameters:
+      - name: id
+        in: path
+        description: イベントID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: イベント詳細取得成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+                required:
+                - event
+        '404':
+          description: イベントが見つからない
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+    patch:
+      summary: イベントを更新
+      tags:
+      - Events
+      description: 指定されたIDのイベントを更新します（要ログイン）
+      parameters:
+      - name: id
+        in: path
+        description: イベントID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: イベント更新成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  event:
+                    "$ref": "#/components/schemas/Event"
+                required:
+                - event
+        '401':
+          description: 未認証エラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '404':
+          description: イベントが見つからない
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/Error"
+        '422':
+          description: バリデーションエラー
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/ValidationErrors"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EventInput"
+    delete:
+      summary: イベントを削除
+      tags:
+      - Events
+      description: 指定されたIDのイベントを削除します（要ログイン）
+      parameters:
+      - name: id
+        in: path
+        description: イベントID
+        required: true
+        schema:
+          type: integer
+      responses:
+        '204':
+          description: イベント削除成功
+        '401':
+          description: 未認証エラー
+        '404':
+          description: イベントが見つからない
   "/me":
     get:
       summary: 現在のユーザー情報を取得
@@ -258,3 +417,63 @@ components:
       required:
       - id
       - name
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        space_id:
+          type: integer
+        space:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: string
+          required:
+          - id
+          - name
+      required:
+      - id
+      - name
+      - starts_at
+      - ends_at
+      - space_id
+      - space
+    EventInput:
+      type: object
+      properties:
+        event:
+          type: object
+          properties:
+            name:
+              type: string
+            description:
+              type: string
+            starts_at:
+              type: string
+              format: date-time
+            ends_at:
+              type: string
+              format: date-time
+            space_id:
+              type: integer
+          required:
+          - name
+          - starts_at
+          - ends_at
+          - space_id
+      required:
+      - event

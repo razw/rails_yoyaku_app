@@ -97,6 +97,43 @@ RSpec.configure do |config|
               address: { type: :string, nullable: true }
             },
             required: %w[id name]
+          },
+          Event: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              name: { type: :string },
+              description: { type: :string, nullable: true },
+              starts_at: { type: :string, format: 'date-time' },
+              ends_at: { type: :string, format: 'date-time' },
+              space_id: { type: :integer },
+              space: {
+                type: :object,
+                properties: {
+                  id: { type: :integer },
+                  name: { type: :string }
+                },
+                required: %w[id name]
+              }
+            },
+            required: %w[id name starts_at ends_at space_id space]
+          },
+          EventInput: {
+            type: :object,
+            properties: {
+              event: {
+                type: :object,
+                properties: {
+                  name: { type: :string },
+                  description: { type: :string },
+                  starts_at: { type: :string, format: 'date-time' },
+                  ends_at: { type: :string, format: 'date-time' },
+                  space_id: { type: :integer }
+                },
+                required: %w[name starts_at ends_at space_id]
+              }
+            },
+            required: %w[event]
           }
         }
       }

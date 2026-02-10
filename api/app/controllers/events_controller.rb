@@ -1,0 +1,63 @@
+class EventsController < ApplicationController
+  before_action :require_login, only: %i[create update destroy]
+  before_action :set_event, only: %i[show update destroy]
+
+  def index
+    events = Event.includes(:space)
+    events = events.where(space_id: params[:space_id]) if params[:space_id].present?
+    render json: { events: events.map { |event| event_response(event) } }, status: :ok
+  end
+
+  def show
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
+  def create
+    event = Event.new(event_params)
+    if event.save
+      render json: { event: event_response(event) }, status: :created
+    else
+      render json: { errors: event.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def update
+    if @event.update(event_params)
+      render json: { event: event_response(@event) }, status: :ok
+    else
+      render json: { errors: @event.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @event.destroy!
+    head :no_content
+  end
+
+  private
+
+  def set_event
+    @event = Event.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "not_found" }, status: :not_found
+  end
+
+  def event_params
+    params.require(:event).permit(:name, :description, :starts_at, :ends_at, :space_id)
+  end
+
+  def event_response(event)
+    {
+      id: event.id,
+      name: event.name,
+      description: event.description,
+      starts_at: event.starts_at,
+      ends_at: event.ends_at,
+      space_id: event.space_id,
+      space: {
+        id: event.space.id,
+        name: event.space.name
+      }
+    }
+  end
+end

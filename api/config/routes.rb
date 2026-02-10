@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   delete "logout" => "sessions#destroy"
 
   resources :spaces, only: %i[index show]
+  resources :events, only: %i[index show create update destroy]
 
   # Defines the root path route ("/")
   # root "posts#index"
