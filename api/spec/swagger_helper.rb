@@ -85,6 +85,18 @@ RSpec.configure do |config|
               csrf_token: { type: :string }
             },
             required: %w[csrf_token]
+          },
+          Space: {
+            type: :object,
+            properties: {
+              id: { type: :integer },
+              name: { type: :string },
+              description: { type: :string, nullable: true },
+              capacity: { type: :integer, nullable: true },
+              price: { type: :string, nullable: true },
+              address: { type: :string, nullable: true }
+            },
+            required: %w[id name]
           }
         }
       }
