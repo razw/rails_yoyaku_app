@@ -1,8 +1,9 @@
 class Event < ApplicationRecord
   belongs_to :space
+  belongs_to :user
 
   has_many :event_participations, dependent: :destroy
-  has_many :users, through: :event_participations
+  has_many :participants, through: :event_participations, source: :user
 
   validates :name, presence: true
   validates :starts_at, presence: true

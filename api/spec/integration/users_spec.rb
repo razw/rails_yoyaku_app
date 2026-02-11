@@ -1,33 +1,33 @@
 # frozen_string_literal: true
 
-require 'swagger_helper'
+require "swagger_helper"
 
-RSpec.describe 'Users API', type: :request do
-  path '/signup' do
-    post 'ユーザー登録' do
-      tags 'Authentication'
-      consumes 'application/json'
-      produces 'application/json'
-      description '新しいユーザーアカウントを作成します'
+RSpec.describe "Users API", type: :request do
+  path "/signup" do
+    post "ユーザー登録" do
+      tags "Authentication"
+      consumes "application/json"
+      produces "application/json"
+      description "新しいユーザーアカウントを作成します"
 
       parameter name: :user_params, in: :body, schema: {
-        '$ref' => '#/components/schemas/UserInput'
+        "$ref" => "#/components/schemas/UserInput"
       }
 
-      response '201', 'ユーザー登録成功' do
+      response "201", "ユーザー登録成功" do
         schema type: :object,
                properties: {
-                 user: { '$ref' => '#/components/schemas/User' }
+                 user: { "$ref" => "#/components/schemas/User" }
                },
-               required: %w[user]
+               required: %w[ user ]
 
         let(:user_params) do
           {
             user: {
-              name: 'Test User',
-              email: 'test@example.com',
-              password: 'password123',
-              password_confirmation: 'password123'
+              name: "Test User",
+              email: "test@example.com",
+              password: "password123",
+              password_confirmation: "password123"
             }
           }
         end
@@ -35,16 +35,16 @@ RSpec.describe 'Users API', type: :request do
         run_test!
       end
 
-      response '422', 'バリデーションエラー' do
-        schema '$ref' => '#/components/schemas/ValidationErrors'
+      response "422", "バリデーションエラー" do
+        schema "$ref" => "#/components/schemas/ValidationErrors"
 
         let(:user_params) do
           {
             user: {
-              name: '',
-              email: 'invalid',
-              password: 'short',
-              password_confirmation: 'mismatch'
+              name: "",
+              email: "invalid",
+              password: "short",
+              password_confirmation: "mismatch"
             }
           }
         end

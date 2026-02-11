@@ -6,7 +6,7 @@ RSpec.describe Event, type: :model do
   describe "associations" do
     it { is_expected.to belong_to(:space) }
     it { is_expected.to have_many(:event_participations).dependent(:destroy) }
-    it { is_expected.to have_many(:users).through(:event_participations) }
+    it { is_expected.to have_many(:participants).through(:event_participations) }
   end
 
   describe "validations" do

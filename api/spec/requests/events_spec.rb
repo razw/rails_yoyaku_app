@@ -193,7 +193,7 @@ RSpec.describe "Events", type: :request do
   end
 
   describe "PATCH /events/:id" do
-    let!(:event) { create(:event, name: "旧イベント名", space: space) }
+    let!(:event) { create(:event, name: "旧イベント名", space: space, user: user) }
     let(:update_params) { { event: { name: "新イベント名" } } }
 
     context "when logged in" do
@@ -257,7 +257,7 @@ RSpec.describe "Events", type: :request do
   end
 
   describe "DELETE /events/:id" do
-    let!(:event) { create(:event, space: space) }
+    let!(:event) { create(:event, space: space, user: user) }
 
     context "when logged in" do
       before { login }

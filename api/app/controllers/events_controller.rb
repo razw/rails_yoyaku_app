@@ -1,6 +1,7 @@
 class EventsController < ApplicationController
   before_action :require_login, only: %i[create update destroy]
   before_action :set_event, only: %i[show update destroy]
+  before_action :authorize_organizer, only: %i[update destroy]
 
   def index
     events = Event.includes(:space)
@@ -13,7 +14,7 @@ class EventsController < ApplicationController
   end
 
   def create
-    event = Event.new(event_params)
+    event = current_user.organized_events.build(event_params)
     if event.save
       render json: { event: event_response(event) }, status: :created
     else
@@ -42,6 +43,12 @@ class EventsController < ApplicationController
     render json: { error: "not_found" }, status: :not_found
   end
 
+  def authorize_organizer
+    unless @event.user_id == current_user.id
+      render json: { error: "forbidden" }, status: :forbidden
+    end
+  end
+
   def event_params
     params.require(:event).permit(:name, :description, :starts_at, :ends_at, :space_id)
   end
@@ -57,6 +64,10 @@ class EventsController < ApplicationController
       space: {
         id: event.space.id,
         name: event.space.name
+      },
+      organizer: {
+        id: event.user.id,
+        name: event.user.name
       }
     }
   end
