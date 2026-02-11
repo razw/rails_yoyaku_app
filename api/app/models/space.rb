@@ -4,12 +4,12 @@ class Space < ApplicationRecord
   validates :name, presence: true
 
   def status_at(time = Time.current)
-    current_event = events.where('starts_at <= ? AND ends_at > ?', time, time).first
+    current_event = events.where("starts_at <= ? AND ends_at > ?", time, time).first
 
     if current_event
       { status: :occupied, until: current_event.ends_at, event: current_event }
     else
-      next_event = events.where('starts_at > ?', time).order(:starts_at).first
+      next_event = events.where("starts_at > ?", time).order(:starts_at).first
       if next_event
         { status: :available, next_event_at: next_event.starts_at, event: next_event }
       else
@@ -19,10 +19,10 @@ class Space < ApplicationRecord
   end
 
   def available_at?(time = Time.current)
-    !events.exists?(['starts_at <= ? AND ends_at > ?', time, time])
+    !events.exists?([ "starts_at <= ? AND ends_at > ?", time, time ])
   end
 
   def next_event_after(time = Time.current)
-    events.where('starts_at > ?', time).order(:starts_at).first
+    events.where("starts_at > ?", time).order(:starts_at).first
   end
 end

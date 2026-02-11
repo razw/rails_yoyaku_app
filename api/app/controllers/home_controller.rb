@@ -37,7 +37,7 @@ class HomeController < ApplicationController
 
     # Get all events that start or overlap with the selected date
     all_events = Event.includes(:space, :user, :participants)
-                      .where('starts_at < ? AND ends_at > ?', day_end, day_start)
+                      .where("starts_at < ? AND ends_at > ?", day_end, day_start)
                       .order(:starts_at)
 
     # Get user's participated event IDs for quick lookup
