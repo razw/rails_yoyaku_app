@@ -40,3 +40,69 @@ export interface ErrorResponse {
 export interface ValidationErrorsResponse {
   errors: string[];
 }
+
+// Space types
+export interface Space {
+  id: number;
+  name: string;
+  description: string | null;
+  capacity: number | null;
+  price: string | null;
+  address: string | null;
+}
+
+export interface SpaceWithStatus extends Space {
+  status: 'available' | 'occupied';
+  occupied_until: string | null;
+  next_event_at: string | null;
+  current_event: EventSummary | null;
+}
+
+// Event types
+export interface Event {
+  id: number;
+  name: string;
+  description: string | null;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  is_organizer: boolean;
+}
+
+export interface EventSummary {
+  id: number;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+}
+
+// Timeline event with participation status
+export interface TimelineEvent {
+  id: number;
+  name: string;
+  description: string | null;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  organizer: {
+    id: number;
+    name: string;
+  };
+  is_organizer: boolean;
+  is_participant: boolean;
+  user_involved: boolean;
+}
+
+// Home page response
+export interface HomeResponse {
+  spaces: SpaceWithStatus[];
+  timeline_events: TimelineEvent[];
+  current_time: string;
+  target_date: string;
+}

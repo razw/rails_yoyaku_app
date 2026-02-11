@@ -22,7 +22,7 @@ export function Header() {
             href="/"
             className="text-xl font-bold text-gray-900 hover:text-gray-700"
           >
-            予約アプリ
+            施設予約アプリ
           </Link>
           <nav className="flex items-center gap-4">
             {user ? (

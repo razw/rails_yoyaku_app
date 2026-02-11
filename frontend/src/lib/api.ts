@@ -6,6 +6,7 @@ import type {
   CsrfTokenResponse,
   ErrorResponse,
   ValidationErrorsResponse,
+  HomeResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -139,4 +140,23 @@ export const authApi = {
     }).then(() => {
       resetCsrfToken();
     }),
+};
+
+// Home API functions
+export const homeApi = {
+  /**
+   * Get home page data (spaces with status and user's events)
+   */
+  getHomeData: (params?: { date?: string; time?: string }): Promise<HomeResponse> => {
+    const queryParams = new URLSearchParams();
+    if (params?.date) queryParams.append('date', params.date);
+    if (params?.time) queryParams.append('time', params.time);
+
+    const queryString = queryParams.toString();
+    const endpoint = queryString ? `/home?${queryString}` : '/home';
+
+    return apiRequest<HomeResponse>(endpoint, {
+      method: "GET",
+    });
+  },
 };
