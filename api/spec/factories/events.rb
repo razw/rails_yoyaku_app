@@ -7,5 +7,6 @@ FactoryBot.define do
     starts_at { 1.day.from_now }
     ends_at { 1.day.from_now + 2.hours }
     space
+    user
   end
 end

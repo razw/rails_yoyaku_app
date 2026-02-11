@@ -39,8 +39,8 @@ RSpec.describe "Events API", type: :request do
                required: %w[ events ]
 
         before do
-          Event.create!(name: "Ruby勉強会", description: "Rubyを学ぶ会", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space)
-          Event.create!(name: "Rails勉強会", description: "Railsを学ぶ会", starts_at: 2.days.from_now, ends_at: 2.days.from_now + 2.hours, space: test_space)
+          Event.create!(name: "Ruby勉強会", description: "Rubyを学ぶ会", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user)
+          Event.create!(name: "Rails勉強会", description: "Railsを学ぶ会", starts_at: 2.days.from_now, ends_at: 2.days.from_now + 2.hours, space: test_space, user: test_user)
         end
 
         run_test! do |response|
@@ -147,7 +147,7 @@ RSpec.describe "Events API", type: :request do
                required: %w[ event ]
 
         let(:id) do
-          Event.create!(name: "Ruby勉強会", description: "Rubyを学ぶ会", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "Ruby勉強会", description: "Rubyを学ぶ会", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         run_test! do |response|
@@ -189,7 +189,7 @@ RSpec.describe "Events API", type: :request do
         before { login_as_test_user }
 
         let(:id) do
-          Event.create!(name: "旧イベント名", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "旧イベント名", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         let(:event) do
@@ -206,7 +206,7 @@ RSpec.describe "Events API", type: :request do
         schema "$ref" => "#/components/schemas/Error"
 
         let(:id) do
-          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         let(:event) do
@@ -239,7 +239,7 @@ RSpec.describe "Events API", type: :request do
         before { login_as_test_user }
 
         let(:id) do
-          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         let(:event) do
@@ -263,7 +263,7 @@ RSpec.describe "Events API", type: :request do
         before { login_as_test_user }
 
         let(:id) do
-          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         run_test!
@@ -273,7 +273,7 @@ RSpec.describe "Events API", type: :request do
         schema "$ref" => "#/components/schemas/Error"
 
         let(:id) do
-          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space).id
+          Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
         end
 
         run_test! do |response|
