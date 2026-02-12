@@ -36,59 +36,64 @@ puts "Created #{Space.count} spaces"
 
 # Create events
 puts "Creating events..."
-now = Time.current
+# Use 10 AM today as base time for demo purposes (instead of current time)
+# This ensures events are always created during daytime hours
+today = Date.current
+base_time = Time.zone.local(today.year, today.month, today.day, 10, 0, 0)
 
 # Clear existing events to avoid conflicts
 Event.destroy_all
 EventParticipation.destroy_all
 
-# Current event (occupied)
+# Current event (occupied) - 9:30 AM to 10:30 AM
 event1 = Event.create!(
   name: "営業ミーティング",
   description: "週次営業会議",
   space: space_objects["スタジオA"],
   user: user1,
-  starts_at: now - 30.minutes,
-  ends_at: now + 30.minutes
+  starts_at: base_time - 30.minutes,
+  ends_at: base_time + 30.minutes
 )
 
 # Upcoming events today
+# 12:00 PM to 1:00 PM
 event2 = Event.create!(
   name: "企画会議",
   description: "新プロジェクトの企画会議",
   space: space_objects["スタジオB"],
   user: user1,
-  starts_at: now + 2.hours,
-  ends_at: now + 3.hours
+  starts_at: base_time + 2.hours,
+  ends_at: base_time + 3.hours
 )
 
+# 2:00 PM to 4:00 PM
 event3 = Event.create!(
   name: "音楽練習",
   description: "バンド練習",
   space: space_objects["スタジオE"],
   user: user2,
-  starts_at: now + 4.hours,
-  ends_at: now + 6.hours
+  starts_at: base_time + 4.hours,
+  ends_at: base_time + 6.hours
 )
 
-# Tomorrow's event
+# Tomorrow's event - 12:00 PM to 2:00 PM
 event4 = Event.create!(
   name: "セミナー",
   description: "社内研修セミナー",
   space: space_objects["スタジオC"],
   user: user1,
-  starts_at: now + 1.day + 2.hours,
-  ends_at: now + 1.day + 4.hours
+  starts_at: base_time + 1.day + 2.hours,
+  ends_at: base_time + 1.day + 4.hours
 )
 
-# Event in 3 days
+# Event in 3 days - 8:00 PM to 9:00 PM
 event5 = Event.create!(
   name: "チームミーティング",
   description: "開発チームの定例会議",
   space: space_objects["スタジオA"],
   user: user2,
-  starts_at: now + 3.days + 10.hours,
-  ends_at: now + 3.days + 11.hours
+  starts_at: base_time + 3.days + 10.hours,
+  ends_at: base_time + 3.days + 11.hours
 )
 
 puts "Created #{Event.count} events"

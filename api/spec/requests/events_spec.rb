@@ -175,6 +175,74 @@ RSpec.describe "Events", type: :request do
             post events_path, params: { event: valid_params[:event].merge(name: "") }, as: :json
           }.not_to change(Event, :count)
         end
+
+        it "returns unprocessable_entity when time slot is already booked" do
+          # Create an existing event: 10:00 - 12:00
+          existing_event = create(:event,
+                                  space: space,
+                                  user: user,
+                                  starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),
+                                  ends_at: Time.zone.local(2026, 3, 1, 12, 0, 0))
+
+          # Try to create overlapping event: 11:00 - 13:00
+          overlapping_params = {
+            event: {
+              name: "Overlapping Event",
+              starts_at: Time.zone.local(2026, 3, 1, 11, 0, 0),
+              ends_at: Time.zone.local(2026, 3, 1, 13, 0, 0),
+              space_id: space.id
+            }
+          }
+
+          post events_path, params: overlapping_params, as: :json
+          expect(response).to have_http_status(:unprocessable_entity)
+        end
+
+        it "returns overlap error message when time slot is already booked" do
+          # Create an existing event
+          existing_event = create(:event,
+                                  space: space,
+                                  user: user,
+                                  starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),
+                                  ends_at: Time.zone.local(2026, 3, 1, 12, 0, 0))
+
+          # Try to create overlapping event
+          overlapping_params = {
+            event: {
+              name: "Overlapping Event",
+              starts_at: Time.zone.local(2026, 3, 1, 11, 0, 0),
+              ends_at: Time.zone.local(2026, 3, 1, 13, 0, 0),
+              space_id: space.id
+            }
+          }
+
+          post events_path, params: overlapping_params, as: :json
+          json = JSON.parse(response.body)
+          expect(json["errors"]).to include("選択した時間帯は既に予約されています")
+        end
+
+        it "does not create an event when time slot is already booked" do
+          # Create an existing event
+          existing_event = create(:event,
+                                  space: space,
+                                  user: user,
+                                  starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),
+                                  ends_at: Time.zone.local(2026, 3, 1, 12, 0, 0))
+
+          # Try to create overlapping event
+          overlapping_params = {
+            event: {
+              name: "Overlapping Event",
+              starts_at: Time.zone.local(2026, 3, 1, 11, 0, 0),
+              ends_at: Time.zone.local(2026, 3, 1, 13, 0, 0),
+              space_id: space.id
+            }
+          }
+
+          expect {
+            post events_path, params: overlapping_params, as: :json
+          }.not_to change(Event, :count)
+        end
       end
     end
 

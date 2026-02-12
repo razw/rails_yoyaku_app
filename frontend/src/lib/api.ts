@@ -7,6 +7,8 @@ import type {
   ErrorResponse,
   ValidationErrorsResponse,
   HomeResponse,
+  CreateEventInput,
+  EventResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -159,4 +161,33 @@ export const homeApi = {
       method: "GET",
     });
   },
+};
+
+// Events API functions
+export const eventsApi = {
+  /**
+   * Create a new event (booking)
+   */
+  createEvent: (input: CreateEventInput): Promise<EventResponse> =>
+    apiRequest<EventResponse>("/events", {
+      method: "POST",
+      body: JSON.stringify(input),
+    }),
+
+  /**
+   * Update an existing event
+   */
+  updateEvent: (eventId: number, input: CreateEventInput): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}`, {
+      method: "PUT",
+      body: JSON.stringify(input),
+    }),
+
+  /**
+   * Delete an event
+   */
+  deleteEvent: (eventId: number): Promise<void> =>
+    apiRequest<void>(`/events/${eventId}`, {
+      method: "DELETE",
+    }),
 };
