@@ -106,3 +106,34 @@ export interface HomeResponse {
   current_time: string;
   target_date: string;
 }
+
+// Event creation input
+export interface CreateEventInput {
+  event: {
+    name: string;
+    description: string | null;
+    starts_at: string;
+    ends_at: string;
+    space_id: number;
+  };
+}
+
+// Event response
+export interface EventResponse {
+  event: {
+    id: number;
+    name: string;
+    description: string | null;
+    starts_at: string;
+    ends_at: string;
+    space_id: number;
+    space: {
+      id: number;
+      name: string;
+    };
+    organizer: {
+      id: number;
+      name: string;
+    };
+  };
+}

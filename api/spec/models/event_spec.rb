@@ -33,6 +33,103 @@ RSpec.describe Event, type: :model do
         expect(event).to be_valid
       end
     end
+
+    describe "#no_overlapping_events" do
+      let(:space) { create(:space) }
+      let(:user) { create(:user) }
+      let(:base_time) { Time.zone.local(2026, 2, 15, 10, 0, 0) }
+
+      before do
+        # Create an existing event: 10:00 - 12:00
+        create(:event,
+               space: space,
+               user: user,
+               starts_at: base_time,
+               ends_at: base_time + 2.hours)
+      end
+
+      it "is invalid when new event starts during existing event" do
+        # New event: 11:00 - 13:00 (overlaps with 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time + 1.hour,
+                      ends_at: base_time + 3.hours)
+        expect(event).not_to be_valid
+        expect(event.errors[:base]).to include("選択した時間帯は既に予約されています")
+      end
+
+      it "is invalid when new event ends during existing event" do
+        # New event: 9:00 - 11:00 (overlaps with 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time - 1.hour,
+                      ends_at: base_time + 1.hour)
+        expect(event).not_to be_valid
+        expect(event.errors[:base]).to include("選択した時間帯は既に予約されています")
+      end
+
+      it "is invalid when new event completely encompasses existing event" do
+        # New event: 9:00 - 13:00 (encompasses 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time - 1.hour,
+                      ends_at: base_time + 3.hours)
+        expect(event).not_to be_valid
+        expect(event.errors[:base]).to include("選択した時間帯は既に予約されています")
+      end
+
+      it "is invalid when existing event completely encompasses new event" do
+        # New event: 10:30 - 11:30 (within 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time + 30.minutes,
+                      ends_at: base_time + 1.hour + 30.minutes)
+        expect(event).not_to be_valid
+        expect(event.errors[:base]).to include("選択した時間帯は既に予約されています")
+      end
+
+      it "is valid when new event is completely before existing event" do
+        # New event: 8:00 - 10:00 (before 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time - 2.hours,
+                      ends_at: base_time)
+        expect(event).to be_valid
+      end
+
+      it "is valid when new event is completely after existing event" do
+        # New event: 12:00 - 14:00 (after 10:00 - 12:00)
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: base_time + 2.hours,
+                      ends_at: base_time + 4.hours)
+        expect(event).to be_valid
+      end
+
+      it "is valid when new event is for a different space" do
+        different_space = create(:space)
+        # New event: 10:00 - 12:00 but in a different space
+        event = build(:event,
+                      space: different_space,
+                      user: user,
+                      starts_at: base_time,
+                      ends_at: base_time + 2.hours)
+        expect(event).to be_valid
+      end
+
+      it "allows updating an event without triggering overlap with itself" do
+        existing_event = Event.find_by(space: space)
+        existing_event.name = "Updated name"
+        expect(existing_event).to be_valid
+        expect(existing_event.save).to be true
+      end
+    end
   end
 
   describe "factory" do

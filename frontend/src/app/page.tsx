@@ -5,9 +5,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DateSelector } from "@/components/DateSelector";
 import { SpaceCard } from "@/components/SpaceCard";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
-import { homeApi } from "@/lib/api";
+import { BookingModal, type BookingFormData } from "@/components/BookingModal";
+import { homeApi, eventsApi } from "@/lib/api";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import type { HomeResponse } from "@/types";
 
 export default function Home() {
@@ -16,14 +17,11 @@ export default function Home() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
+  const [selectedSpaceForBooking, setSelectedSpaceForBooking] = useState<number | undefined>();
+  const [selectedTimeForBooking, setSelectedTimeForBooking] = useState<Date | undefined>();
 
-  useEffect(() => {
-    if (user) {
-      loadHomeData();
-    }
-  }, [user, selectedDate]);
-
-  const loadHomeData = async () => {
+  const loadHomeData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -39,11 +37,18 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [selectedDate]);
+
+  useEffect(() => {
+    if (user) {
+      loadHomeData();
+    }
+  }, [user, loadHomeData]);
 
   const handleBookSpace = (spaceId: number) => {
-    // TODO: Navigate to event creation page with pre-selected space
-    console.log('Book space:', spaceId);
+    setSelectedSpaceForBooking(spaceId === 0 ? undefined : spaceId);
+    setSelectedTimeForBooking(undefined);
+    setIsBookingModalOpen(true);
   };
 
   const handleEventClick = (eventId: number) => {
@@ -52,8 +57,24 @@ export default function Home() {
   };
 
   const handleTimeSlotClick = (startTime: Date) => {
-    // TODO: Navigate to event creation page with pre-selected time
-    console.log('Create event at:', startTime);
+    setSelectedSpaceForBooking(undefined);
+    setSelectedTimeForBooking(startTime);
+    setIsBookingModalOpen(true);
+  };
+
+  const handleCreateBooking = async (bookingData: BookingFormData) => {
+    await eventsApi.createEvent({
+      event: {
+        name: bookingData.name,
+        description: bookingData.description || null,
+        starts_at: bookingData.starts_at,
+        ends_at: bookingData.ends_at,
+        space_id: bookingData.space_id,
+      },
+    });
+
+    // Reload home data to show new booking
+    await loadHomeData();
   };
 
   if (!user) {
@@ -161,6 +182,19 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Booking Modal */}
+      {homeData && (
+        <BookingModal
+          isOpen={isBookingModalOpen}
+          onClose={() => setIsBookingModalOpen(false)}
+          onSubmit={handleCreateBooking}
+          spaces={homeData.spaces}
+          selectedSpace={selectedSpaceForBooking}
+          selectedDate={selectedDate}
+          selectedStartTime={selectedTimeForBooking}
+        />
+      )}
     </div>
   );
 }
