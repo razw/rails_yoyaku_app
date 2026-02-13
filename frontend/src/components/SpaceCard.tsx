@@ -21,10 +21,10 @@ export function SpaceCard({ space, onBookSpace }: SpaceCardProps) {
 
   return (
     <div
-      className={`p-4 rounded-lg border ${
+      className={`p-4 rounded-xl border-l-4 transition-all duration-200 hover:shadow-lg ${
         isAvailable
-          ? 'bg-white border-gray-200'
-          : 'bg-gray-50 border-gray-300'
+          ? 'bg-white border-l-teal-500 border-y border-r border-y-gray-200 border-r-gray-200'
+          : 'bg-gray-50 border-l-gray-300 border-y border-r border-y-gray-300 border-r-gray-300'
       }`}
     >
       <div className="flex justify-between items-start mb-2">
@@ -72,7 +72,7 @@ export function SpaceCard({ space, onBookSpace }: SpaceCardProps) {
       {isAvailable ? (
         <button
           onClick={() => onBookSpace(space.id)}
-          className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+          className="w-full px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors"
         >
           このスペースを予約
         </button>
@@ -80,7 +80,7 @@ export function SpaceCard({ space, onBookSpace }: SpaceCardProps) {
         space.next_event_at && (
           <button
             onClick={() => onBookSpace(space.id)}
-            className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+            className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
           >
             この時間以降で予約
           </button>
