@@ -5,11 +5,17 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DateSelector } from "@/components/DateSelector";
 import { SpaceCard } from "@/components/SpaceCard";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
-import { BookingModal, type BookingFormData } from "@/components/BookingModal";
+import { BookingForm, type BookingFormData } from "@/components/BookingForm";
+import { EventDetailPanel, type EventEditFormData } from "@/components/EventDetailPanel";
 import { homeApi, eventsApi } from "@/lib/api";
 import Link from "next/link";
 import { useState, useEffect, useCallback } from "react";
-import type { HomeResponse } from "@/types";
+import type { HomeResponse, TimelineEvent } from "@/types";
+
+type LeftPanelView =
+  | { kind: "spaces" }
+  | { kind: "booking"; spaceId?: number; startTime?: Date }
+  | { kind: "eventDetail"; event: TimelineEvent };
 
 export default function Home() {
   const { user } = useAuth();
@@ -17,9 +23,7 @@ export default function Home() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-  const [selectedSpaceForBooking, setSelectedSpaceForBooking] = useState<number | undefined>();
-  const [selectedTimeForBooking, setSelectedTimeForBooking] = useState<Date | undefined>();
+  const [leftPanel, setLeftPanel] = useState<LeftPanelView>({ kind: "spaces" });
 
   const loadHomeData = useCallback(async () => {
     setLoading(true);
@@ -46,20 +50,25 @@ export default function Home() {
   }, [user, loadHomeData]);
 
   const handleBookSpace = (spaceId: number) => {
-    setSelectedSpaceForBooking(spaceId === 0 ? undefined : spaceId);
-    setSelectedTimeForBooking(undefined);
-    setIsBookingModalOpen(true);
+    setLeftPanel({
+      kind: "booking",
+      spaceId: spaceId === 0 ? undefined : spaceId,
+    });
   };
 
   const handleEventClick = (eventId: number) => {
-    // TODO: Navigate to event detail page
-    console.log('View event:', eventId);
+    const event = homeData?.timeline_events.find((e) => e.id === eventId);
+    if (event) {
+      setLeftPanel({ kind: "eventDetail", event });
+    }
   };
 
   const handleTimeSlotClick = (startTime: Date) => {
-    setSelectedSpaceForBooking(undefined);
-    setSelectedTimeForBooking(startTime);
-    setIsBookingModalOpen(true);
+    setLeftPanel({ kind: "booking", startTime });
+  };
+
+  const handleBackToSpaces = () => {
+    setLeftPanel({ kind: "spaces" });
   };
 
   const handleCreateBooking = async (bookingData: BookingFormData) => {
@@ -72,8 +81,24 @@ export default function Home() {
         space_id: bookingData.space_id,
       },
     });
+    await loadHomeData();
+  };
 
-    // Reload home data to show new booking
+  const handleUpdateEvent = async (eventId: number, data: EventEditFormData) => {
+    await eventsApi.updateEvent(eventId, {
+      event: {
+        name: data.name,
+        description: data.description || null,
+        starts_at: data.starts_at,
+        ends_at: data.ends_at,
+        space_id: data.space_id,
+      },
+    });
+    await loadHomeData();
+  };
+
+  const handleDeleteEvent = async (eventId: number) => {
+    await eventsApi.deleteEvent(eventId);
     await loadHomeData();
   };
 
@@ -148,25 +173,50 @@ export default function Home() {
 
         {homeData && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column: Spaces (2/3 width) */}
+            {/* Left Column: Spaces / Booking Form / Event Detail (2/3 width) */}
             <div className="lg:col-span-2">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                スペース一覧
-              </h2>
-              {homeData.spaces.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
-                  <p className="text-gray-500">スペースがありません</p>
-                </div>
-              ) : (
-                <div className="grid gap-4">
-                  {homeData.spaces.map((space) => (
-                    <SpaceCard
-                      key={space.id}
-                      space={space}
-                      onBookSpace={handleBookSpace}
-                    />
-                  ))}
-                </div>
+              {leftPanel.kind === "spaces" && (
+                <>
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                    スペース一覧
+                  </h2>
+                  {homeData.spaces.length === 0 ? (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                      <p className="text-gray-500">スペースがありません</p>
+                    </div>
+                  ) : (
+                    <div className="grid gap-4">
+                      {homeData.spaces.map((space) => (
+                        <SpaceCard
+                          key={space.id}
+                          space={space}
+                          onBookSpace={handleBookSpace}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {leftPanel.kind === "booking" && (
+                <BookingForm
+                  onSubmit={handleCreateBooking}
+                  onCancel={handleBackToSpaces}
+                  spaces={homeData.spaces}
+                  selectedSpace={leftPanel.spaceId}
+                  selectedDate={selectedDate}
+                  selectedStartTime={leftPanel.startTime}
+                />
+              )}
+
+              {leftPanel.kind === "eventDetail" && (
+                <EventDetailPanel
+                  event={leftPanel.event}
+                  onBack={handleBackToSpaces}
+                  onUpdate={handleUpdateEvent}
+                  onDelete={handleDeleteEvent}
+                  spaces={homeData.spaces}
+                />
               )}
             </div>
 
@@ -182,19 +232,6 @@ export default function Home() {
           </div>
         )}
       </main>
-
-      {/* Booking Modal */}
-      {homeData && (
-        <BookingModal
-          isOpen={isBookingModalOpen}
-          onClose={() => setIsBookingModalOpen(false)}
-          onSubmit={handleCreateBooking}
-          spaces={homeData.spaces}
-          selectedSpace={selectedSpaceForBooking}
-          selectedDate={selectedDate}
-          selectedStartTime={selectedTimeForBooking}
-        />
-      )}
     </div>
   );
 }
