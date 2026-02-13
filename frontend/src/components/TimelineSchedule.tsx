@@ -199,7 +199,7 @@ export function TimelineSchedule({
     setCurrentDragTop(snapToGrid(clampedTop));
   }, [draggingEventId]);
 
-  const handlePointerUp = useCallback(async (e: React.PointerEvent) => {
+  const handlePointerUp = useCallback(async () => {
     if (!dragStartInfo.current || draggingEventId === null || currentDragTop === null || !onEventMove) {
       setDraggingEventId(null);
       setCurrentDragTop(null);
