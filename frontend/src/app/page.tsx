@@ -102,6 +102,21 @@ export default function Home() {
     await loadHomeData();
   };
 
+  const handleMoveEvent = async (eventId: number, newStartsAt: string, newEndsAt: string) => {
+    const event = homeData?.timeline_events.find((e) => e.id === eventId);
+    if (!event) return;
+    await eventsApi.updateEvent(eventId, {
+      event: {
+        name: event.name,
+        description: event.description,
+        starts_at: newStartsAt,
+        ends_at: newEndsAt,
+        space_id: event.space.id,
+      },
+    });
+    await loadHomeData();
+  };
+
   if (!user) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -227,6 +242,7 @@ export default function Home() {
                 selectedDate={selectedDate}
                 onEventClick={handleEventClick}
                 onTimeSlotClick={handleTimeSlotClick}
+                onEventMove={handleMoveEvent}
               />
             </div>
           </div>
