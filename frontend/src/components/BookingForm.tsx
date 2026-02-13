@@ -111,7 +111,7 @@ export function BookingForm({
     <div>
       <h2 className="text-2xl font-bold text-gray-900 mb-4">予約を作成</h2>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         {error && (
           <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
             <p className="text-red-800">{error}</p>
@@ -134,7 +134,7 @@ export function BookingForm({
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="例: チーム会議"
             />
           </div>
@@ -153,7 +153,7 @@ export function BookingForm({
               onChange={(e) =>
                 setFormData({ ...formData, space_id: Number(e.target.value) })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               {spaces.map((space) => (
                 <option key={space.id} value={space.id}>
@@ -180,7 +180,7 @@ export function BookingForm({
               onChange={(e) =>
                 setFormData({ ...formData, starts_at: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
 
@@ -199,7 +199,7 @@ export function BookingForm({
               onChange={(e) =>
                 setFormData({ ...formData, ends_at: e.target.value })
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
 
@@ -217,7 +217,7 @@ export function BookingForm({
                 setFormData({ ...formData, description: e.target.value })
               }
               rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
               placeholder="イベントの詳細や注意事項など"
             />
           </div>
@@ -234,7 +234,7 @@ export function BookingForm({
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-2 text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? "作成中..." : "予約を作成"}
             </button>

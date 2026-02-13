@@ -241,7 +241,7 @@ export function TimelineSchedule({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div className="bg-white rounded-xl shadow-md border border-gray-200">
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex justify-between items-center mb-3">
@@ -262,9 +262,9 @@ export function TimelineSchedule({
         <div className="flex gap-2">
           <button
             onClick={() => setFilter('all')}
-            className={`px-3 py-1 text-sm rounded-md ${
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${
               filter === 'all'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -272,9 +272,9 @@ export function TimelineSchedule({
           </button>
           <button
             onClick={() => setFilter('mine')}
-            className={`px-3 py-1 text-sm rounded-md ${
+            className={`px-3 py-1 text-sm rounded-md transition-colors ${
               filter === 'mine'
-                ? 'bg-blue-600 text-white'
+                ? 'bg-teal-600 text-white'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
@@ -305,7 +305,7 @@ export function TimelineSchedule({
               <div
                 key={slot.time}
                 onClick={() => handleTimeSlotClick(slot.hour, slot.minute)}
-                className={`h-[60px] border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
+                className={`h-[60px] border-b border-gray-100 hover:bg-teal-50/40 cursor-pointer transition-colors ${
                   index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
                 }`}
               />
@@ -332,7 +332,7 @@ export function TimelineSchedule({
                       canDrag ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-pointer'
                     } ${
                       event.user_involved
-                        ? 'bg-blue-100 border-2 border-blue-500'
+                        ? 'bg-teal-100 border-2 border-teal-500'
                         : 'bg-gray-100 border border-gray-300'
                     }`}
                     style={{
@@ -357,7 +357,7 @@ export function TimelineSchedule({
                       {event.space.name}
                     </div>
                     {event.is_organizer && (
-                      <span className="inline-block text-[10px] px-1 bg-blue-600 text-white rounded mt-1">
+                      <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded mt-1">
                         主催
                       </span>
                     )}

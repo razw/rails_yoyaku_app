@@ -52,9 +52,9 @@ export function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) 
     <div className="flex items-center gap-2">
       <button
         onClick={handleTodayClick}
-        className={`px-4 py-2 text-sm font-medium rounded-md ${
+        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
           isToday
-            ? 'bg-blue-600 text-white'
+            ? 'bg-teal-600 text-white'
             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
         }`}
       >
@@ -63,9 +63,9 @@ export function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) 
 
       <button
         onClick={handleTomorrowClick}
-        className={`px-4 py-2 text-sm font-medium rounded-md ${
+        className={`px-4 py-2 text-sm font-medium rounded-md transition-colors ${
           isTomorrow
-            ? 'bg-blue-600 text-white'
+            ? 'bg-teal-600 text-white'
             : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
         }`}
       >
@@ -76,7 +76,7 @@ export function DateSelector({ selectedDate, onDateChange }: DateSelectorProps) 
         type="date"
         value={formatDateForInput(selectedDate)}
         onChange={handleDateInputChange}
-        className="px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
       />
     </div>
   );

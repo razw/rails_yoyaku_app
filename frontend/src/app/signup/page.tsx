@@ -34,10 +34,10 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header />
       <main className="max-w-md mx-auto px-4 py-12">
-        <div className="bg-white p-8 rounded-lg shadow-sm border border-gray-200">
+        <div className="bg-white p-8 rounded-xl shadow-md border border-gray-200">
           <h1 className="text-2xl font-bold text-gray-900 mb-6 text-center">
             新規登録
           </h1>
@@ -62,7 +62,7 @@ export default function SignupPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="山田 太郎"
               />
             </div>
@@ -80,7 +80,7 @@ export default function SignupPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="example@example.com"
               />
             </div>
@@ -99,7 +99,7 @@ export default function SignupPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="6文字以上"
               />
             </div>
@@ -118,7 +118,7 @@ export default function SignupPage() {
                 onChange={(e) => setPasswordConfirmation(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 placeholder="パスワードを再入力"
               />
             </div>
@@ -126,7 +126,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full py-2 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-2 px-4 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-medium rounded-md hover:from-teal-600 hover:to-emerald-600 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-md transition-all"
             >
               {isLoading ? "登録中..." : "登録"}
             </button>
@@ -136,7 +136,7 @@ export default function SignupPage() {
             すでにアカウントをお持ちの方は{" "}
             <Link
               href="/login"
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-teal-600 hover:text-teal-700 font-medium"
             >
               ログイン
             </Link>

@@ -119,30 +119,32 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Header />
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              施設予約アプリ
-            </h1>
-            <p className="text-lg text-gray-600 mb-8">
-              スペースの空き状況を確認して、簡単に予約できます
-            </p>
+            <div className="glass-card rounded-2xl p-12 max-w-2xl mx-auto shadow-lg">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">
+                施設予約アプリ
+              </h1>
+              <p className="text-lg text-gray-600 mb-8">
+                スペースの空き状況を確認して、簡単に予約できます
+              </p>
 
-            <div className="flex justify-center gap-4">
-              <Link
-                href="/login"
-                className="px-6 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                ログイン
-              </Link>
-              <Link
-                href="/signup"
-                className="px-6 py-3 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
-              >
-                新規登録
-              </Link>
+              <div className="flex justify-center gap-4">
+                <Link
+                  href="/login"
+                  className="px-6 py-3 text-base font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                >
+                  ログイン
+                </Link>
+                <Link
+                  href="/signup"
+                  className="px-6 py-3 text-base font-medium text-white bg-gradient-to-r from-teal-500 to-emerald-500 rounded-md hover:from-teal-600 hover:to-emerald-600 shadow-md transition-all"
+                >
+                  新規登録
+                </Link>
+              </div>
             </div>
           </div>
         </main>
@@ -151,11 +153,11 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header />
 
       {/* Sub Header with Date Selector and Book Button */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-teal-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <DateSelector
@@ -165,7 +167,7 @@ export default function Home() {
 
             <button
               onClick={() => handleBookSpace(0)}
-              className="px-6 py-2 text-base font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700"
+              className="px-6 py-2 text-base font-medium text-white bg-gradient-to-r from-teal-500 to-emerald-500 rounded-md hover:from-teal-600 hover:to-emerald-600 shadow-md transition-all"
             >
               ＋予約する
             </button>
@@ -176,6 +178,7 @@ export default function Home() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading && (
           <div className="text-center py-12">
+            <div className="inline-block w-8 h-8 border-4 border-teal-200 border-t-teal-600 rounded-full animate-spin mb-4"></div>
             <p className="text-gray-600">読み込み中...</p>
           </div>
         )}
@@ -192,11 +195,12 @@ export default function Home() {
             <div className="lg:col-span-2">
               {leftPanel.kind === "spaces" && (
                 <>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4">
+                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <span className="w-1 h-6 bg-teal-500 rounded-full"></span>
                     スペース一覧
                   </h2>
                   {homeData.spaces.length === 0 ? (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
                       <p className="text-gray-500">スペースがありません</p>
                     </div>
                   ) : (
