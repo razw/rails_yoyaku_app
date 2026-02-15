@@ -5,6 +5,7 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 interface TimelineScheduleProps {
   events: TimelineEvent[];
+  spaces: { id: number; name: string }[];
   selectedDate: Date;
   onEventClick: (eventId: number) => void;
   onTimeSlotClick?: (startTime: Date) => void;
@@ -30,12 +31,14 @@ const END_HOUR = 22;
 
 export function TimelineSchedule({
   events,
+  spaces,
   selectedDate,
   onEventClick,
   onTimeSlotClick,
   onEventMove
 }: TimelineScheduleProps) {
   const [filter, setFilter] = useState<'all' | 'mine'>('all');
+  const [selectedSpaceId, setSelectedSpaceId] = useState<number | null>(null);
 
   // Drag state
   const [draggingEventId, setDraggingEventId] = useState<number | null>(null);
@@ -59,13 +62,17 @@ export function TimelineSchedule({
     return slots;
   }, []);
 
-  // Filter events based on selected filter
+  // Filter events based on selected filter and space
   const filteredEvents = useMemo(() => {
+    let result = events;
     if (filter === 'mine') {
-      return events.filter(event => event.user_involved);
+      result = result.filter(event => event.user_involved);
     }
-    return events;
-  }, [events, filter]);
+    if (selectedSpaceId !== null) {
+      result = result.filter(event => event.space.id === selectedSpaceId);
+    }
+    return result;
+  }, [events, filter, selectedSpaceId]);
 
   // Calculate event positions and handle overlaps
   const eventPositions = useMemo((): EventPosition[] => {
@@ -281,6 +288,33 @@ export function TimelineSchedule({
             自分が参加
           </button>
         </div>
+
+        {/* Space tabs */}
+        <div className="flex gap-1 mt-3 flex-wrap">
+          <button
+            onClick={() => setSelectedSpaceId(null)}
+            className={`px-2 py-1 text-xs rounded transition-colors ${
+              selectedSpaceId === null
+                ? 'bg-emerald-600 text-white'
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            全スペース
+          </button>
+          {spaces.map(space => (
+            <button
+              key={space.id}
+              onClick={() => setSelectedSpaceId(space.id)}
+              className={`px-2 py-1 text-xs rounded transition-colors ${
+                selectedSpaceId === space.id
+                  ? 'bg-emerald-600 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {space.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Timeline */}
@@ -353,9 +387,11 @@ export function TimelineSchedule({
                     <div className="text-xs font-semibold truncate">
                       {event.name}
                     </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {event.space.name}
-                    </div>
+                    {selectedSpaceId === null && (
+                      <div className="text-xs text-gray-600 truncate">
+                        {event.space.name}
+                      </div>
+                    )}
                     {event.is_organizer && (
                       <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded mt-1">
                         主催

@@ -243,6 +243,7 @@ export default function Home() {
             <div className="lg:col-span-1">
               <TimelineSchedule
                 events={homeData.timeline_events}
+                spaces={homeData.spaces}
                 selectedDate={selectedDate}
                 onEventClick={handleEventClick}
                 onTimeSlotClick={handleTimeSlotClick}
