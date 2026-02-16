@@ -5,16 +5,11 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DateSelector } from "@/components/DateSelector";
 import { SpaceCard } from "@/components/SpaceCard";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
-import { EventDetailPanel, type EventEditFormData } from "@/components/EventDetailPanel";
 import { homeApi, eventsApi } from "@/lib/api";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import type { HomeResponse, TimelineEvent } from "@/types";
-
-type LeftPanelView =
-  | { kind: "spaces" }
-  | { kind: "eventDetail"; event: TimelineEvent };
+import type { HomeResponse } from "@/types";
 
 export default function Home() {
   const { user } = useAuth();
@@ -24,7 +19,6 @@ export default function Home() {
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [leftPanel, setLeftPanel] = useState<LeftPanelView>({ kind: "spaces" });
 
   const loadHomeData = useCallback(async (date: Date) => {
     setLoading(true);
@@ -74,10 +68,7 @@ export default function Home() {
   };
 
   const handleEventClick = (eventId: number) => {
-    const event = homeData?.timeline_events.find((e) => e.id === eventId);
-    if (event) {
-      setLeftPanel({ kind: "eventDetail", event });
-    }
+    router.push(`/events/${eventId}`);
   };
 
   const handleTimeSlotClick = (startTime: Date) => {
@@ -89,31 +80,9 @@ export default function Home() {
     router.push(`/booking?${params.toString()}`);
   };
 
-  const handleBackToSpaces = () => {
-    setLeftPanel({ kind: "spaces" });
-  };
-
   const reloadData = useCallback(() => {
     return loadHomeData(selectedDate);
   }, [selectedDate, loadHomeData]);
-
-  const handleUpdateEvent = async (eventId: number, data: EventEditFormData) => {
-    await eventsApi.updateEvent(eventId, {
-      event: {
-        name: data.name,
-        description: data.description || null,
-        starts_at: data.starts_at,
-        ends_at: data.ends_at,
-        space_id: data.space_id,
-      },
-    });
-    await reloadData();
-  };
-
-  const handleDeleteEvent = async (eventId: number) => {
-    await eventsApi.deleteEvent(eventId);
-    await reloadData();
-  };
 
   const handleMoveEvent = async (eventId: number, newStartsAt: string, newEndsAt: string) => {
     const event = homeData?.timeline_events.find((e) => e.id === eventId);
@@ -221,40 +190,26 @@ export default function Home() {
 
         {homeData && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column: Spaces / Event Detail (2/3 width) */}
+            {/* Left Column: Spaces (2/3 width) */}
             <div className="lg:col-span-2">
-              {leftPanel.kind === "spaces" && (
-                <>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-teal-500 rounded-full"></span>
-                    スペース一覧
-                  </h2>
-                  {homeData.spaces.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
-                      <p className="text-gray-500">スペースがありません</p>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4">
-                      {homeData.spaces.map((space) => (
-                        <SpaceCard
-                          key={space.id}
-                          space={space}
-                          onBookSpace={handleBookSpace}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {leftPanel.kind === "eventDetail" && (
-                <EventDetailPanel
-                  event={leftPanel.event}
-                  onBack={handleBackToSpaces}
-                  onUpdate={handleUpdateEvent}
-                  onDelete={handleDeleteEvent}
-                  spaces={homeData.spaces}
-                />
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-teal-500 rounded-full"></span>
+                スペース一覧
+              </h2>
+              {homeData.spaces.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
+                  <p className="text-gray-500">スペースがありません</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {homeData.spaces.map((space) => (
+                    <SpaceCard
+                      key={space.id}
+                      space={space}
+                      onBookSpace={handleBookSpace}
+                    />
+                  ))}
+                </div>
               )}
             </div>
 

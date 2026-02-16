@@ -68,7 +68,8 @@ class EventsController < ApplicationController
       organizer: {
         id: event.user.id,
         name: event.user.name
-      }
+      },
+      is_organizer: current_user&.id == event.user_id
     }
   end
 end

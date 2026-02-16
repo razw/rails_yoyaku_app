@@ -9,6 +9,7 @@ import type {
   HomeResponse,
   CreateEventInput,
   EventResponse,
+  SpacesResponse,
 } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
@@ -163,8 +164,21 @@ export const homeApi = {
   },
 };
 
+// Spaces API functions
+export const spacesApi = {
+  getSpaces: (): Promise<SpacesResponse> =>
+    apiRequest<SpacesResponse>("/spaces", {
+      method: "GET",
+    }),
+};
+
 // Events API functions
 export const eventsApi = {
+  getEvent: (eventId: number): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}`, {
+      method: "GET",
+    }),
+
   /**
    * Create a new event (booking)
    */
