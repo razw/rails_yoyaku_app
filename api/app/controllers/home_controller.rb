@@ -64,7 +64,8 @@ class HomeController < ApplicationController
         },
         is_organizer: is_organizer,
         is_participant: is_participant,
-        user_involved: is_organizer || is_participant
+        user_involved: is_organizer || is_participant,
+        status: event.status
       }
     end
 

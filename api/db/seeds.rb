@@ -53,7 +53,8 @@ event1 = Event.create!(
   space: space_objects["スタジオA"],
   user: user1,
   starts_at: base_time - 30.minutes,
-  ends_at: base_time + 30.minutes
+  ends_at: base_time + 30.minutes,
+  status: :approved
 )
 
 # Upcoming events today
@@ -64,7 +65,8 @@ event2 = Event.create!(
   space: space_objects["スタジオB"],
   user: user1,
   starts_at: base_time + 2.hours,
-  ends_at: base_time + 3.hours
+  ends_at: base_time + 3.hours,
+  status: :approved
 )
 
 # 2:00 PM to 4:00 PM
@@ -74,7 +76,8 @@ event3 = Event.create!(
   space: space_objects["スタジオE"],
   user: user2,
   starts_at: base_time + 4.hours,
-  ends_at: base_time + 6.hours
+  ends_at: base_time + 6.hours,
+  status: :approved
 )
 
 # Tomorrow's event - 12:00 PM to 2:00 PM
@@ -84,7 +87,8 @@ event4 = Event.create!(
   space: space_objects["スタジオC"],
   user: user1,
   starts_at: base_time + 1.day + 2.hours,
-  ends_at: base_time + 1.day + 4.hours
+  ends_at: base_time + 1.day + 4.hours,
+  status: :approved
 )
 
 # Event in 3 days - 8:00 PM to 9:00 PM
@@ -94,7 +98,8 @@ event5 = Event.create!(
   space: space_objects["スタジオA"],
   user: user2,
   starts_at: base_time + 3.days + 10.hours,
-  ends_at: base_time + 3.days + 11.hours
+  ends_at: base_time + 3.days + 11.hours,
+  status: :approved
 )
 
 puts "Created #{Event.count} events"

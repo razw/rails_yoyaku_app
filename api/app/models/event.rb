@@ -5,6 +5,8 @@ class Event < ApplicationRecord
   has_many :event_participations, dependent: :destroy
   has_many :participants, through: :event_participations, source: :user
 
+  enum :status, { pending: 0, approved: 1, rejected: 2 }
+
   validates :name, presence: true
   validates :starts_at, presence: true
   validates :ends_at, presence: true
@@ -26,7 +28,7 @@ class Event < ApplicationRecord
 
     # Find overlapping events for the same space
     # Two time ranges overlap if: (starts_at < other.ends_at) AND (ends_at > other.starts_at)
-    overlapping = Event.where(space_id: space_id)
+    overlapping = Event.approved.where(space_id: space_id)
                        .where("starts_at < ? AND ends_at > ?", ends_at, starts_at)
 
     # Exclude the current record when updating

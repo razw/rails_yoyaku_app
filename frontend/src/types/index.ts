@@ -71,6 +71,7 @@ export interface Event {
     name: string;
   };
   is_organizer: boolean;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface EventSummary {
@@ -98,6 +99,7 @@ export interface TimelineEvent {
   is_organizer: boolean;
   is_participant: boolean;
   user_involved: boolean;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 // Home page response

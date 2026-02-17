@@ -9,6 +9,15 @@ RSpec.describe Event, type: :model do
     it { is_expected.to have_many(:participants).through(:event_participations) }
   end
 
+  describe "enums" do
+    it { is_expected.to define_enum_for(:status).with_values(pending: 0, approved: 1, rejected: 2) }
+
+    it "defaults to pending" do
+      event = Event.new
+      expect(event.status).to eq("pending")
+    end
+  end
+
   describe "validations" do
     it { is_expected.to validate_presence_of(:name) }
     it { is_expected.to validate_presence_of(:starts_at) }
@@ -40,8 +49,8 @@ RSpec.describe Event, type: :model do
       let(:base_time) { Time.zone.local(2026, 2, 15, 10, 0, 0) }
 
       before do
-        # Create an existing event: 10:00 - 12:00
-        create(:event,
+        # Create an existing approved event: 10:00 - 12:00
+        create(:event, :approved,
                space: space,
                user: user,
                starts_at: base_time,
@@ -128,6 +137,42 @@ RSpec.describe Event, type: :model do
         existing_event.name = "Updated name"
         expect(existing_event).to be_valid
         expect(existing_event.save).to be true
+      end
+
+      it "does not check overlap against pending events" do
+        # Create a pending event: 10:00 - 12:00 on a different day
+        pending_time = base_time + 1.day
+        create(:event,
+               space: space,
+               user: user,
+               starts_at: pending_time,
+               ends_at: pending_time + 2.hours,
+               status: :pending)
+
+        # Overlapping event should be valid because existing one is pending
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: pending_time + 1.hour,
+                      ends_at: pending_time + 3.hours)
+        expect(event).to be_valid
+      end
+
+      it "does not check overlap against rejected events" do
+        rejected_time = base_time + 2.days
+        create(:event,
+               space: space,
+               user: user,
+               starts_at: rejected_time,
+               ends_at: rejected_time + 2.hours,
+               status: :rejected)
+
+        event = build(:event,
+                      space: space,
+                      user: user,
+                      starts_at: rejected_time + 1.hour,
+                      ends_at: rejected_time + 3.hours)
+        expect(event).to be_valid
       end
     end
   end

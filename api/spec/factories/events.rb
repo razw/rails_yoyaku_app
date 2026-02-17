@@ -8,5 +8,13 @@ FactoryBot.define do
     description { Faker::Lorem.paragraph }
     space
     user
+
+    trait :approved do
+      status { :approved }
+    end
+
+    trait :rejected do
+      status { :rejected }
+    end
   end
 end

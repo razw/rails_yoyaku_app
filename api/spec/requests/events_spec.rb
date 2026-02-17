@@ -178,7 +178,7 @@ RSpec.describe "Events", type: :request do
 
         it "returns unprocessable_entity when time slot is already booked" do
           # Create an existing event: 10:00 - 12:00
-          existing_event = create(:event,
+          existing_event = create(:event, :approved,
                                   space: space,
                                   user: user,
                                   starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),
@@ -200,7 +200,7 @@ RSpec.describe "Events", type: :request do
 
         it "returns overlap error message when time slot is already booked" do
           # Create an existing event
-          existing_event = create(:event,
+          existing_event = create(:event, :approved,
                                   space: space,
                                   user: user,
                                   starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),
@@ -223,7 +223,7 @@ RSpec.describe "Events", type: :request do
 
         it "does not create an event when time slot is already booked" do
           # Create an existing event
-          existing_event = create(:event,
+          existing_event = create(:event, :approved,
                                   space: space,
                                   user: user,
                                   starts_at: Time.zone.local(2026, 3, 1, 10, 0, 0),

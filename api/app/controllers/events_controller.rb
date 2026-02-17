@@ -69,7 +69,8 @@ class EventsController < ApplicationController
         id: event.user.id,
         name: event.user.name
       },
-      is_organizer: current_user&.id == event.user_id
+      is_organizer: current_user&.id == event.user_id,
+      status: event.status
     }
   end
 end
