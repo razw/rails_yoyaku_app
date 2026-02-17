@@ -36,9 +36,10 @@ RSpec.configure do |config|
             properties: {
               id: { type: :integer },
               name: { type: :string },
-              email: { type: :string, format: :email }
+              email: { type: :string, format: :email },
+              admin: { type: :boolean }
             },
-            required: %w[ id name email ]
+            required: %w[ id name email admin ]
           },
           UserInput: {
             type: :object,

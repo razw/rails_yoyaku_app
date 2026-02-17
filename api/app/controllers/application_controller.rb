@@ -22,7 +22,8 @@ class ApplicationController < ActionController::API
     {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      admin: user.admin
     }
   end
 end

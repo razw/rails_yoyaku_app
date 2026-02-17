@@ -4,6 +4,7 @@ user1 = User.find_or_create_by!(email: "tanaka@example.com") do |user|
   user.name = "田中太郎"
   user.password = "password123"
   user.password_confirmation = "password123"
+  user.admin = true
 end
 
 user2 = User.find_or_create_by!(email: "sato@example.com") do |user|

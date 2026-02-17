@@ -28,6 +28,18 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "admin" do
+    it "defaults to false" do
+      user = create(:user)
+      expect(user.admin).to be false
+    end
+
+    it "can be set to true" do
+      user = create(:user, :admin)
+      expect(user.admin).to be true
+    end
+  end
+
   describe "factory" do
     it "has a valid factory" do
       expect(build(:user)).to be_valid
