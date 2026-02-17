@@ -5,33 +5,28 @@ import { useAuth } from "@/contexts/AuthContext";
 import { DateSelector } from "@/components/DateSelector";
 import { SpaceCard } from "@/components/SpaceCard";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
-import { BookingForm, type BookingFormData } from "@/components/BookingForm";
-import { EventDetailPanel, type EventEditFormData } from "@/components/EventDetailPanel";
 import { homeApi, eventsApi } from "@/lib/api";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, useEffect, useCallback } from "react";
-import type { HomeResponse, TimelineEvent } from "@/types";
-
-type LeftPanelView =
-  | { kind: "spaces" }
-  | { kind: "booking"; spaceId?: number; startTime?: Date }
-  | { kind: "eventDetail"; event: TimelineEvent };
+import type { HomeResponse } from "@/types";
 
 export default function Home() {
   const { user } = useAuth();
-  const [selectedDate, setSelectedDate] = useState(new Date());
+  const router = useRouter();
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedSpaceId, setSelectedSpaceId] = useState<number | null>(null);
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [leftPanel, setLeftPanel] = useState<LeftPanelView>({ kind: "spaces" });
 
-  const loadHomeData = useCallback(async () => {
+  const loadHomeData = useCallback(async (date: Date) => {
     setLoading(true);
     setError(null);
     try {
-      const year = selectedDate.getFullYear();
-      const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
-      const day = String(selectedDate.getDate()).padStart(2, '0');
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
       const dateString = `${year}-${month}-${day}`;
       const data = await homeApi.getHomeData({ date: dateString });
       setHomeData(data);
@@ -41,66 +36,53 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [selectedDate]);
+  }, []);
 
   useEffect(() => {
     if (user) {
-      loadHomeData();
+      loadHomeData(selectedDate);
     }
-  }, [user, loadHomeData]);
+  }, [user, selectedDate, loadHomeData]);
+
+  const handleDateChange = (date: Date) => {
+    setSelectedDate(date);
+  };
+
+  const formatDateParam = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const handleBookSpace = (spaceId: number) => {
-    setLeftPanel({
-      kind: "booking",
-      spaceId: spaceId === 0 ? undefined : spaceId,
-    });
+    const params = new URLSearchParams();
+    if (spaceId !== 0) {
+      params.set("spaceId", String(spaceId));
+    } else if (selectedSpaceId !== null) {
+      params.set("spaceId", String(selectedSpaceId));
+    }
+    params.set("date", formatDateParam(selectedDate));
+    const query = params.toString();
+    router.push(`/booking${query ? `?${query}` : ""}`);
   };
 
   const handleEventClick = (eventId: number) => {
-    const event = homeData?.timeline_events.find((e) => e.id === eventId);
-    if (event) {
-      setLeftPanel({ kind: "eventDetail", event });
-    }
+    router.push(`/events/${eventId}`);
   };
 
   const handleTimeSlotClick = (startTime: Date) => {
-    setLeftPanel({ kind: "booking", startTime });
+    const params = new URLSearchParams();
+    if (selectedSpaceId !== null) {
+      params.set("spaceId", String(selectedSpaceId));
+    }
+    params.set("startTime", startTime.toISOString());
+    router.push(`/booking?${params.toString()}`);
   };
 
-  const handleBackToSpaces = () => {
-    setLeftPanel({ kind: "spaces" });
-  };
-
-  const handleCreateBooking = async (bookingData: BookingFormData) => {
-    await eventsApi.createEvent({
-      event: {
-        name: bookingData.name,
-        description: bookingData.description || null,
-        starts_at: bookingData.starts_at,
-        ends_at: bookingData.ends_at,
-        space_id: bookingData.space_id,
-      },
-    });
-    await loadHomeData();
-  };
-
-  const handleUpdateEvent = async (eventId: number, data: EventEditFormData) => {
-    await eventsApi.updateEvent(eventId, {
-      event: {
-        name: data.name,
-        description: data.description || null,
-        starts_at: data.starts_at,
-        ends_at: data.ends_at,
-        space_id: data.space_id,
-      },
-    });
-    await loadHomeData();
-  };
-
-  const handleDeleteEvent = async (eventId: number) => {
-    await eventsApi.deleteEvent(eventId);
-    await loadHomeData();
-  };
+  const reloadData = useCallback(() => {
+    return loadHomeData(selectedDate);
+  }, [selectedDate, loadHomeData]);
 
   const handleMoveEvent = async (eventId: number, newStartsAt: string, newEndsAt: string) => {
     const event = homeData?.timeline_events.find((e) => e.id === eventId);
@@ -114,7 +96,7 @@ export default function Home() {
         space_id: event.space.id,
       },
     });
-    await loadHomeData();
+    await reloadData();
   };
 
   if (!user) {
@@ -156,14 +138,31 @@ export default function Home() {
     <div className="min-h-screen">
       <Header />
 
-      {/* Sub Header with Date Selector and Book Button */}
+      {/* Sub Header with Date Selector, Space Selector, and Book Button */}
       <div className="bg-gradient-to-r from-teal-50 to-emerald-50 border-b border-teal-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <DateSelector
-              selectedDate={selectedDate}
-              onDateChange={setSelectedDate}
-            />
+          <div className="flex justify-between items-center flex-wrap gap-3">
+            <div className="flex items-center gap-4 flex-wrap">
+              <DateSelector
+                selectedDate={selectedDate}
+                onDateChange={handleDateChange}
+              />
+
+              {homeData && (
+                <select
+                  value={selectedSpaceId ?? ''}
+                  onChange={(e) => setSelectedSpaceId(e.target.value ? Number(e.target.value) : null)}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
+                >
+                  <option value="">スペースを選択</option>
+                  {homeData.spaces.map((space) => (
+                    <option key={space.id} value={space.id}>
+                      {space.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
 
             <button
               onClick={() => handleBookSpace(0)}
@@ -191,63 +190,56 @@ export default function Home() {
 
         {homeData && !loading && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left Column: Spaces / Booking Form / Event Detail (2/3 width) */}
+            {/* Left Column: Spaces (2/3 width) */}
             <div className="lg:col-span-2">
-              {leftPanel.kind === "spaces" && (
-                <>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <span className="w-1 h-6 bg-teal-500 rounded-full"></span>
-                    スペース一覧
-                  </h2>
-                  {homeData.spaces.length === 0 ? (
-                    <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
-                      <p className="text-gray-500">スペースがありません</p>
-                    </div>
-                  ) : (
-                    <div className="grid gap-4">
-                      {homeData.spaces.map((space) => (
-                        <SpaceCard
-                          key={space.id}
-                          space={space}
-                          onBookSpace={handleBookSpace}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </>
-              )}
-
-              {leftPanel.kind === "booking" && (
-                <BookingForm
-                  onSubmit={handleCreateBooking}
-                  onCancel={handleBackToSpaces}
-                  spaces={homeData.spaces}
-                  selectedSpace={leftPanel.spaceId}
-                  selectedDate={selectedDate}
-                  selectedStartTime={leftPanel.startTime}
-                />
-              )}
-
-              {leftPanel.kind === "eventDetail" && (
-                <EventDetailPanel
-                  event={leftPanel.event}
-                  onBack={handleBackToSpaces}
-                  onUpdate={handleUpdateEvent}
-                  onDelete={handleDeleteEvent}
-                  spaces={homeData.spaces}
-                />
+              <h2 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+                <span className="w-1 h-6 bg-teal-500 rounded-full"></span>
+                スペース一覧
+              </h2>
+              {homeData.spaces.length === 0 ? (
+                <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
+                  <p className="text-gray-500">スペースがありません</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {homeData.spaces.map((space) => (
+                    <SpaceCard
+                      key={space.id}
+                      space={space}
+                      onBookSpace={handleBookSpace}
+                    />
+                  ))}
+                </div>
               )}
             </div>
 
             {/* Right Column: Timeline Schedule (1/3 width) */}
             <div className="lg:col-span-1">
-              <TimelineSchedule
-                events={homeData.timeline_events}
-                selectedDate={selectedDate}
-                onEventClick={handleEventClick}
-                onTimeSlotClick={handleTimeSlotClick}
-                onEventMove={handleMoveEvent}
-              />
+              {selectedSpaceId !== null ? (
+                <TimelineSchedule
+                  events={homeData.timeline_events}
+                  spaces={homeData.spaces}
+                  selectedDate={selectedDate}
+                  selectedSpaceId={selectedSpaceId}
+                  onEventClick={handleEventClick}
+                  onTimeSlotClick={handleTimeSlotClick}
+                  onEventMove={handleMoveEvent}
+                />
+              ) : (
+                <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">
+                  <div className="text-gray-400 mb-3">
+                    <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <p className="text-gray-500 font-medium">
+                    スペースを選択すると
+                  </p>
+                  <p className="text-gray-500 font-medium">
+                    タイムラインが表示されます
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}

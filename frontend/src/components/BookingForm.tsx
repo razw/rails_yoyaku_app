@@ -11,6 +11,7 @@ interface BookingFormProps {
   selectedSpace?: number;
   selectedDate?: Date;
   selectedStartTime?: Date;
+  onSpaceChange?: (spaceId: number) => void;
 }
 
 export interface BookingFormData {
@@ -28,6 +29,7 @@ export function BookingForm({
   selectedSpace,
   selectedDate,
   selectedStartTime,
+  onSpaceChange,
 }: BookingFormProps) {
   const [formData, setFormData] = useState<BookingFormData>({
     name: "",
@@ -150,9 +152,11 @@ export function BookingForm({
               id="space"
               required
               value={formData.space_id}
-              onChange={(e) =>
-                setFormData({ ...formData, space_id: Number(e.target.value) })
-              }
+              onChange={(e) => {
+                const newSpaceId = Number(e.target.value);
+                setFormData({ ...formData, space_id: newSpaceId });
+                onSpaceChange?.(newSpaceId);
+              }}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500"
             >
               {spaces.map((space) => (

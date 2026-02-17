@@ -135,5 +135,11 @@ export interface EventResponse {
       id: number;
       name: string;
     };
+    is_organizer: boolean;
   };
+}
+
+// Spaces list response
+export interface SpacesResponse {
+  spaces: Space[];
 }

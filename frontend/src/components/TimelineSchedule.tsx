@@ -5,10 +5,13 @@ import { useState, useMemo, useRef, useCallback } from "react";
 
 interface TimelineScheduleProps {
   events: TimelineEvent[];
+  spaces: { id: number; name: string }[];
   selectedDate: Date;
+  selectedSpaceId: number;
   onEventClick: (eventId: number) => void;
   onTimeSlotClick?: (startTime: Date) => void;
   onEventMove?: (eventId: number, newStartsAt: string, newEndsAt: string) => Promise<void>;
+  readOnly?: boolean;
 }
 
 interface TimeSlot {
@@ -30,10 +33,13 @@ const END_HOUR = 22;
 
 export function TimelineSchedule({
   events,
+  spaces,
   selectedDate,
+  selectedSpaceId,
   onEventClick,
   onTimeSlotClick,
-  onEventMove
+  onEventMove,
+  readOnly = false,
 }: TimelineScheduleProps) {
   const [filter, setFilter] = useState<'all' | 'mine'>('all');
 
@@ -59,13 +65,14 @@ export function TimelineSchedule({
     return slots;
   }, []);
 
-  // Filter events based on selected filter
+  // Filter events based on selected filter and space
   const filteredEvents = useMemo(() => {
+    let result = events.filter(event => event.space.id === selectedSpaceId);
     if (filter === 'mine') {
-      return events.filter(event => event.user_involved);
+      result = result.filter(event => event.user_involved);
     }
-    return events;
-  }, [events, filter]);
+    return result;
+  }, [events, filter, selectedSpaceId]);
 
   // Calculate event positions and handle overlaps
   const eventPositions = useMemo((): EventPosition[] => {
@@ -281,6 +288,11 @@ export function TimelineSchedule({
             自分が参加
           </button>
         </div>
+
+        {/* Selected space name */}
+        <div className="mt-2 text-sm text-teal-700 font-medium">
+          {spaces.find(s => s.id === selectedSpaceId)?.name}
+        </div>
       </div>
 
       {/* Timeline */}
@@ -304,8 +316,10 @@ export function TimelineSchedule({
             {timeSlots.map((slot, index) => (
               <div
                 key={slot.time}
-                onClick={() => handleTimeSlotClick(slot.hour, slot.minute)}
-                className={`h-[60px] border-b border-gray-100 hover:bg-teal-50/40 cursor-pointer transition-colors ${
+                onClick={readOnly ? undefined : () => handleTimeSlotClick(slot.hour, slot.minute)}
+                className={`h-[60px] border-b border-gray-100 transition-colors ${
+                  readOnly ? '' : 'hover:bg-teal-50/40 cursor-pointer'
+                } ${
                   index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
                 }`}
               />
@@ -319,17 +333,19 @@ export function TimelineSchedule({
                 const left = lane * laneWidth;
                 const isDragging = draggingEventId === event.id;
                 const displayTop = isDragging && currentDragTop !== null ? currentDragTop : top;
-                const canDrag = !!onEventMove && event.is_organizer;
+                const canDrag = !readOnly && !!onEventMove && event.is_organizer;
 
                 return (
                   <div
                     key={event.id}
-                    onClick={() => { if (!isDragging) onEventClick(event.id); }}
-                    onPointerDown={(e) => handlePointerDown(e, pos)}
-                    onPointerMove={handlePointerMove}
-                    onPointerUp={handlePointerUp}
-                    className={`absolute pointer-events-auto transition-shadow hover:shadow-lg select-none ${
-                      canDrag ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-pointer'
+                    onClick={readOnly ? undefined : () => { if (!isDragging) onEventClick(event.id); }}
+                    onPointerDown={readOnly ? undefined : (e) => handlePointerDown(e, pos)}
+                    onPointerMove={readOnly ? undefined : handlePointerMove}
+                    onPointerUp={readOnly ? undefined : handlePointerUp}
+                    className={`absolute pointer-events-auto transition-shadow select-none ${
+                      readOnly ? 'cursor-default' : canDrag ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : 'cursor-pointer'
+                    } ${
+                      readOnly ? '' : 'hover:shadow-lg'
                     } ${
                       event.user_involved
                         ? 'bg-teal-100 border-2 border-teal-500'
@@ -352,9 +368,6 @@ export function TimelineSchedule({
                   >
                     <div className="text-xs font-semibold truncate">
                       {event.name}
-                    </div>
-                    <div className="text-xs text-gray-600 truncate">
-                      {event.space.name}
                     </div>
                     {event.is_organizer && (
                       <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded mt-1">
