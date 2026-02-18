@@ -102,10 +102,25 @@ export interface TimelineEvent {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+// My event (for home page table, not date-filtered)
+export interface MyEvent {
+  id: number;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  is_organizer: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
 // Home page response
 export interface HomeResponse {
   spaces: SpaceWithStatus[];
   timeline_events: TimelineEvent[];
+  my_events: MyEvent[];
   current_time: string;
   target_date: string;
 }
@@ -139,6 +154,7 @@ export interface EventResponse {
       name: string;
     };
     is_organizer: boolean;
+    status: 'pending' | 'approved' | 'rejected';
   };
 }
 

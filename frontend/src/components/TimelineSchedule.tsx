@@ -347,9 +347,15 @@ export function TimelineSchedule({
                     } ${
                       readOnly ? '' : 'hover:shadow-lg'
                     } ${
-                      event.user_involved
-                        ? 'bg-teal-100 border-2 border-teal-500'
-                        : 'bg-gray-100 border border-gray-300'
+                      event.status === 'pending'
+                        ? event.user_involved
+                          ? 'bg-amber-50 border-2 border-dashed border-amber-400'
+                          : 'bg-amber-50 border border-dashed border-amber-300'
+                        : event.status === 'rejected'
+                          ? 'bg-gray-50 border border-gray-300 opacity-50'
+                          : event.user_involved
+                            ? 'bg-teal-100 border-2 border-teal-500'
+                            : 'bg-gray-100 border border-gray-300'
                     }`}
                     style={{
                       top: `${displayTop}px`,
@@ -369,11 +375,23 @@ export function TimelineSchedule({
                     <div className="text-xs font-semibold truncate">
                       {event.name}
                     </div>
-                    {event.is_organizer && (
-                      <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded mt-1">
-                        主催
-                      </span>
-                    )}
+                    <div className="flex gap-1 mt-1 flex-wrap">
+                      {event.is_organizer && (
+                        <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded">
+                          主催
+                        </span>
+                      )}
+                      {event.status === 'pending' && (
+                        <span className="inline-block text-[10px] px-1 bg-amber-500 text-white rounded">
+                          申請中
+                        </span>
+                      )}
+                      {event.status === 'rejected' && (
+                        <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                          却下
+                        </span>
+                      )}
+                    </div>
                   </div>
                 );
               })}

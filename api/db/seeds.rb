@@ -102,6 +102,28 @@ event5 = Event.create!(
   status: :approved
 )
 
+# Pending event (tomorrow) - user2 requesting スタジオD
+event6 = Event.create!(
+  name: "ヨガレッスン",
+  description: "朝のヨガレッスン（承認待ち）",
+  space: space_objects["スタジオD"],
+  user: user2,
+  starts_at: base_time + 1.day,
+  ends_at: base_time + 1.day + 1.hour,
+  status: :pending
+)
+
+# Pending event (2 days later) - user1 requesting スタジオE
+event7 = Event.create!(
+  name: "社内勉強会",
+  description: "技術共有会（承認待ち）",
+  space: space_objects["スタジオE"],
+  user: user1,
+  starts_at: base_time + 2.days + 3.hours,
+  ends_at: base_time + 2.days + 5.hours,
+  status: :pending
+)
+
 puts "Created #{Event.count} events"
 
 # Add event participations

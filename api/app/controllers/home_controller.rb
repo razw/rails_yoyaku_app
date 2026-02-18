@@ -69,9 +69,31 @@ class HomeController < ApplicationController
       }
     end
 
+    # Get all upcoming events that the current user is involved in (organizer or participant)
+    my_event_ids = (user_organized_event_ids + user_participated_event_ids).uniq
+    my_events = Event.includes(:space, :user)
+                     .where(id: my_event_ids)
+                     .where("ends_at > ?", Time.current)
+                     .order(:starts_at)
+                     .map do |event|
+      {
+        id: event.id,
+        name: event.name,
+        starts_at: event.starts_at,
+        ends_at: event.ends_at,
+        space: {
+          id: event.space.id,
+          name: event.space.name
+        },
+        is_organizer: event.user_id == current_user.id,
+        status: event.status
+      }
+    end
+
     render json: {
       spaces: spaces,
       timeline_events: timeline_events,
+      my_events: my_events,
       current_time: target_time,
       target_date: target_date
     }

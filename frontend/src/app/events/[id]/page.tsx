@@ -145,10 +145,25 @@ export default function EventDetailPage({
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
                 <div className="space-y-4">
-                  <div>
+                  <div className="flex items-center gap-3">
                     <h3 className="text-lg font-semibold text-gray-900">
                       {eventData.name}
                     </h3>
+                    {eventData.status === 'pending' && (
+                      <span className="inline-block text-xs px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-300 rounded-full font-medium">
+                        申請中
+                      </span>
+                    )}
+                    {eventData.status === 'approved' && (
+                      <span className="inline-block text-xs px-2 py-0.5 bg-teal-100 text-teal-700 border border-teal-300 rounded-full font-medium">
+                        承認済み
+                      </span>
+                    )}
+                    {eventData.status === 'rejected' && (
+                      <span className="inline-block text-xs px-2 py-0.5 bg-gray-100 text-gray-500 border border-gray-300 rounded-full font-medium">
+                        却下
+                      </span>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
