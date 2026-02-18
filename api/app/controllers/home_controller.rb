@@ -40,6 +40,12 @@ class HomeController < ApplicationController
                       .where("starts_at < ? AND ends_at > ?", day_end, day_start)
                       .order(:starts_at)
 
+    # Hide rejected events from non-admin users (except their own)
+    unless current_user.admin?
+      all_events = all_events.where.not(status: :rejected)
+                              .or(all_events.where(status: :rejected, user_id: current_user.id))
+    end
+
     # Get user's participated event IDs for quick lookup
     user_participated_event_ids = current_user.participated_events.pluck(:id)
     user_organized_event_ids = current_user.organized_events.pluck(:id)

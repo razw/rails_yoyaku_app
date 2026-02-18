@@ -13,6 +13,12 @@ user2 = User.find_or_create_by!(email: "sato@example.com") do |user|
   user.password_confirmation = "password123"
 end
 
+user3 = User.find_or_create_by!(email: "suzuki@example.com") do |user|
+  user.name = "鈴木一郎"
+  user.password = "password123"
+  user.password_confirmation = "password123"
+end
+
 puts "Created #{User.count} users"
 
 # Create spaces
@@ -124,6 +130,28 @@ event7 = Event.create!(
   status: :pending
 )
 
+# Pending event (3 days later) - user3 requesting スタジオB
+event8 = Event.create!(
+  name: "写真撮影会",
+  description: "ポートレート撮影会（承認待ち）",
+  space: space_objects["スタジオB"],
+  user: user3,
+  starts_at: base_time + 3.days + 2.hours,
+  ends_at: base_time + 3.days + 4.hours,
+  status: :pending
+)
+
+# Approved event (4 days later) - user3
+event9 = Event.create!(
+  name: "読書会",
+  description: "月例読書会",
+  space: space_objects["スタジオD"],
+  user: user3,
+  starts_at: base_time + 4.days + 1.hour,
+  ends_at: base_time + 4.days + 3.hours,
+  status: :approved
+)
+
 puts "Created #{Event.count} events"
 
 # Add event participations
@@ -141,6 +169,9 @@ EventParticipation.create!(user: user2, event: event4)
 
 EventParticipation.create!(user: user2, event: event5)
 
+EventParticipation.create!(user: user3, event: event3)
+EventParticipation.create!(user: user3, event: event9)
+
 puts "Created #{EventParticipation.count} event participations"
 
 puts "\n=== Seed data creation completed! ==="
@@ -152,4 +183,6 @@ puts "\nTest credentials:"
 puts "Email: tanaka@example.com"
 puts "Password: password123"
 puts "\nEmail: sato@example.com"
+puts "Password: password123"
+puts "\nEmail: suzuki@example.com"
 puts "Password: password123"

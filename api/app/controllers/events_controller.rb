@@ -7,10 +7,15 @@ class EventsController < ApplicationController
   def index
     events = Event.includes(:space)
     events = events.where(space_id: params[:space_id]) if params[:space_id].present?
+    events = filter_rejected(events)
     render json: { events: events.map { |event| event_response(event) } }, status: :ok
   end
 
   def show
+    if @event.rejected? && !current_user&.admin? && current_user&.id != @event.user_id
+      return render json: { error: "not_found" }, status: :not_found
+    end
+
     render json: { event: event_response(@event) }, status: :ok
   end
 
@@ -65,6 +70,16 @@ class EventsController < ApplicationController
   def authorize_organizer
     unless @event.user_id == current_user.id
       render json: { error: "forbidden" }, status: :forbidden
+    end
+  end
+
+  def filter_rejected(events)
+    return events if current_user&.admin?
+
+    if current_user
+      events.where.not(status: :rejected).or(events.where(status: :rejected, user_id: current_user.id))
+    else
+      events.where.not(status: :rejected)
     end
   end
 
