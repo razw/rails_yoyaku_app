@@ -30,7 +30,12 @@ export function Header() {
           <nav className="flex items-center gap-4">
             {user ? (
               <>
-                <span className="text-teal-100">
+                <span className="text-teal-100 flex items-center gap-2">
+                  {user.admin && (
+                    <span className="text-xs px-2 py-0.5 bg-amber-400 text-amber-900 rounded-full font-bold shadow-sm">
+                      管理者
+                    </span>
+                  )}
                   {user.name} さん
                 </span>
                 <button

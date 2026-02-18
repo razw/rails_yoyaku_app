@@ -116,11 +116,29 @@ export interface MyEvent {
   status: 'pending' | 'approved' | 'rejected';
 }
 
+// Pending event for admin review
+export interface PendingEvent {
+  id: number;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  organizer: {
+    id: number;
+    name: string;
+  };
+  status: 'pending' | 'approved' | 'rejected';
+}
+
 // Home page response
 export interface HomeResponse {
   spaces: SpaceWithStatus[];
   timeline_events: TimelineEvent[];
   my_events: MyEvent[];
+  pending_events: PendingEvent[];
   current_time: string;
   target_date: string;
 }
@@ -154,6 +172,7 @@ export interface EventResponse {
       name: string;
     };
     is_organizer: boolean;
+    is_admin: boolean;
     status: 'pending' | 'approved' | 'rejected';
   };
 }

@@ -324,6 +324,108 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "PATCH /events/:id/approve" do
+    let!(:event) { create(:event, space: space, user: user) }
+
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
+
+      it "approves a pending event" do
+        patch approve_event_path(event), as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["event"]["status"]).to eq("approved")
+      end
+
+      it "persists the status change" do
+        patch approve_event_path(event), as: :json
+        expect(event.reload).to be_approved
+      end
+
+      it "returns error for non-pending event" do
+        event.approved!
+        patch approve_event_path(event), as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context "when logged in as non-admin" do
+      before { login }
+
+      it "returns forbidden" do
+        patch approve_event_path(event), as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not change the status" do
+        patch approve_event_path(event), as: :json
+        expect(event.reload).to be_pending
+      end
+    end
+
+    context "when not logged in" do
+      it "returns unauthorized" do
+        patch approve_event_path(event), as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
+  describe "PATCH /events/:id/reject" do
+    let!(:event) { create(:event, space: space, user: user) }
+
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
+
+      it "rejects a pending event" do
+        patch reject_event_path(event), as: :json
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["event"]["status"]).to eq("rejected")
+      end
+
+      it "persists the status change" do
+        patch reject_event_path(event), as: :json
+        expect(event.reload).to be_rejected
+      end
+
+      it "returns error for non-pending event" do
+        event.approved!
+        patch reject_event_path(event), as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context "when logged in as non-admin" do
+      before { login }
+
+      it "returns forbidden" do
+        patch reject_event_path(event), as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not change the status" do
+        patch reject_event_path(event), as: :json
+        expect(event.reload).to be_pending
+      end
+    end
+
+    context "when not logged in" do
+      it "returns unauthorized" do
+        patch reject_event_path(event), as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
   describe "DELETE /events/:id" do
     let!(:event) { create(:event, space: space, user: user) }
 

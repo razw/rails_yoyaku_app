@@ -174,6 +174,56 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Admin: Pending Events Table */}
+      {homeData && !loading && user.admin && homeData.pending_events.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+          <h2 className="text-lg font-bold text-gray-900 mb-3 flex items-center gap-2">
+            <span className="w-1 h-5 bg-amber-500 rounded-full"></span>
+            承認待ちの予約
+          </h2>
+          <div className="bg-white rounded-xl shadow-md border border-amber-200 overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-amber-50 border-b border-amber-200">
+                  <th className="text-left px-4 py-2 font-medium text-gray-600">イベント名</th>
+                  <th className="text-left px-4 py-2 font-medium text-gray-600">日時</th>
+                  <th className="text-left px-4 py-2 font-medium text-gray-600">スペース</th>
+                  <th className="text-left px-4 py-2 font-medium text-gray-600">申請者</th>
+                  <th className="text-left px-4 py-2 font-medium text-gray-600">ステータス</th>
+                </tr>
+              </thead>
+              <tbody>
+                {homeData.pending_events.map(event => {
+                  const start = new Date(event.starts_at);
+                  const end = new Date(event.ends_at);
+                  const fmtDate = (d: Date) =>
+                    `${d.getMonth() + 1}/${d.getDate()}`;
+                  const fmtTime = (d: Date) =>
+                    `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+                  return (
+                    <tr
+                      key={event.id}
+                      onClick={() => handleEventClick(event.id)}
+                      className="border-b border-gray-100 last:border-b-0 hover:bg-amber-50/50 cursor-pointer transition-colors"
+                    >
+                      <td className="px-4 py-3 font-medium text-gray-900">{event.name}</td>
+                      <td className="px-4 py-3 text-gray-700">{fmtDate(start)} {fmtTime(start)} - {fmtTime(end)}</td>
+                      <td className="px-4 py-3 text-gray-700">{event.space.name}</td>
+                      <td className="px-4 py-3 text-gray-700">{event.organizer.name}</td>
+                      <td className="px-4 py-3">
+                        <span className="inline-block text-xs px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-300 rounded-full font-medium">
+                          申請中
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* My Events Table */}
       {homeData && !loading && homeData.my_events.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">

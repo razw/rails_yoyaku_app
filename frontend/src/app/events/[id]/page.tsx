@@ -32,6 +32,8 @@ export default function EventDetailPage({
   const [error, setError] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [approving, setApproving] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -84,6 +86,42 @@ export default function EventDetailPage({
       }
       setDeleting(false);
       setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleApprove = async () => {
+    if (!eventData) return;
+    setApproving(true);
+    setError(null);
+    try {
+      const data = await eventsApi.approveEvent(eventData.id);
+      setEventData(data.event);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("承認に失敗しました");
+      }
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  const handleReject = async () => {
+    if (!eventData) return;
+    setRejecting(true);
+    setError(null);
+    try {
+      const data = await eventsApi.rejectEvent(eventData.id);
+      setEventData(data.event);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("却下に失敗しました");
+      }
+    } finally {
+      setRejecting(false);
     }
   };
 
@@ -216,6 +254,27 @@ export default function EventDetailPage({
                         className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700"
                       >
                         編集
+                      </button>
+                    </div>
+                  )}
+
+                  {eventData.is_admin && eventData.status === 'pending' && (
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                      <button
+                        type="button"
+                        onClick={handleReject}
+                        disabled={rejecting || approving}
+                        className="px-4 py-2 text-red-700 bg-white border border-red-300 rounded-md hover:bg-red-50 disabled:opacity-50"
+                      >
+                        {rejecting ? "却下中..." : "却下"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleApprove}
+                        disabled={approving || rejecting}
+                        className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700 disabled:opacity-50"
+                      >
+                        {approving ? "承認中..." : "承認"}
                       </button>
                     </div>
                   )}

@@ -1,7 +1,8 @@
 class EventsController < ApplicationController
-  before_action :require_login, only: %i[create update destroy]
-  before_action :set_event, only: %i[show update destroy]
+  before_action :require_login, only: %i[create update destroy approve reject]
+  before_action :set_event, only: %i[show update destroy approve reject]
   before_action :authorize_organizer, only: %i[update destroy]
+  before_action :require_admin, only: %i[approve reject]
 
   def index
     events = Event.includes(:space)
@@ -33,6 +34,24 @@ class EventsController < ApplicationController
   def destroy
     @event.destroy!
     head :no_content
+  end
+
+  def approve
+    unless @event.pending?
+      return render json: { error: "only pending events can be approved" }, status: :unprocessable_entity
+    end
+
+    @event.approved!
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
+  def reject
+    unless @event.pending?
+      return render json: { error: "only pending events can be rejected" }, status: :unprocessable_entity
+    end
+
+    @event.rejected!
+    render json: { event: event_response(@event) }, status: :ok
   end
 
   private
@@ -70,6 +89,7 @@ class EventsController < ApplicationController
         name: event.user.name
       },
       is_organizer: current_user&.id == event.user_id,
+      is_admin: current_user&.admin? || false,
       status: event.status
     }
   end
