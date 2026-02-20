@@ -36,9 +36,10 @@ RSpec.configure do |config|
             properties: {
               id: { type: :integer },
               name: { type: :string },
-              email: { type: :string, format: :email }
+              email: { type: :string, format: :email },
+              admin: { type: :boolean }
             },
-            required: %w[ id name email ]
+            required: %w[ id name email admin ]
           },
           UserInput: {
             type: :object,
@@ -107,6 +108,7 @@ RSpec.configure do |config|
               starts_at: { type: :string, format: "date-time" },
               ends_at: { type: :string, format: "date-time" },
               space_id: { type: :integer },
+              status: { type: :string, enum: %w[pending approved rejected] },
               space: {
                 type: :object,
                 properties: {
@@ -116,7 +118,7 @@ RSpec.configure do |config|
                 required: %w[ id name ]
               }
             },
-            required: %w[ id name starts_at ends_at space_id space ]
+            required: %w[ id name starts_at ends_at space_id status space ]
           },
           EventInput: {
             type: :object,

@@ -3,6 +3,7 @@ export interface User {
   id: number;
   name: string;
   email: string;
+  admin: boolean;
 }
 
 // API Request types
@@ -70,6 +71,7 @@ export interface Event {
     name: string;
   };
   is_organizer: boolean;
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface EventSummary {
@@ -97,12 +99,46 @@ export interface TimelineEvent {
   is_organizer: boolean;
   is_participant: boolean;
   user_involved: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+// My event (for home page table, not date-filtered)
+export interface MyEvent {
+  id: number;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  is_organizer: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+}
+
+// Pending event for admin review
+export interface PendingEvent {
+  id: number;
+  name: string;
+  starts_at: string;
+  ends_at: string;
+  space: {
+    id: number;
+    name: string;
+  };
+  organizer: {
+    id: number;
+    name: string;
+  };
+  status: 'pending' | 'approved' | 'rejected';
 }
 
 // Home page response
 export interface HomeResponse {
   spaces: SpaceWithStatus[];
   timeline_events: TimelineEvent[];
+  my_events: MyEvent[];
+  pending_events: PendingEvent[];
   current_time: string;
   target_date: string;
 }
@@ -136,6 +172,8 @@ export interface EventResponse {
       name: string;
     };
     is_organizer: boolean;
+    is_admin: boolean;
+    status: 'pending' | 'approved' | 'rejected';
   };
 }
 

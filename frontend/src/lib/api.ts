@@ -204,4 +204,14 @@ export const eventsApi = {
     apiRequest<void>(`/events/${eventId}`, {
       method: "DELETE",
     }),
+
+  approveEvent: (eventId: number): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}/approve`, {
+      method: "PATCH",
+    }),
+
+  rejectEvent: (eventId: number): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}/reject`, {
+      method: "PATCH",
+    }),
 };

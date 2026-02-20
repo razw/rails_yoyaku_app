@@ -16,7 +16,12 @@ Rails.application.routes.draw do
   get "home" => "home#index"
 
   resources :spaces, only: %i[index show]
-  resources :events, only: %i[index show create update destroy]
+  resources :events, only: %i[index show create update destroy] do
+    member do
+      patch :approve
+      patch :reject
+    end
+  end
 
   # Defines the root path route ("/")
   # root "posts#index"

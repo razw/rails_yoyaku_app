@@ -4,10 +4,17 @@ user1 = User.find_or_create_by!(email: "tanaka@example.com") do |user|
   user.name = "田中太郎"
   user.password = "password123"
   user.password_confirmation = "password123"
+  user.admin = true
 end
 
 user2 = User.find_or_create_by!(email: "sato@example.com") do |user|
   user.name = "佐藤花子"
+  user.password = "password123"
+  user.password_confirmation = "password123"
+end
+
+user3 = User.find_or_create_by!(email: "suzuki@example.com") do |user|
+  user.name = "鈴木一郎"
   user.password = "password123"
   user.password_confirmation = "password123"
 end
@@ -52,7 +59,8 @@ event1 = Event.create!(
   space: space_objects["スタジオA"],
   user: user1,
   starts_at: base_time - 30.minutes,
-  ends_at: base_time + 30.minutes
+  ends_at: base_time + 30.minutes,
+  status: :approved
 )
 
 # Upcoming events today
@@ -63,7 +71,8 @@ event2 = Event.create!(
   space: space_objects["スタジオB"],
   user: user1,
   starts_at: base_time + 2.hours,
-  ends_at: base_time + 3.hours
+  ends_at: base_time + 3.hours,
+  status: :approved
 )
 
 # 2:00 PM to 4:00 PM
@@ -73,7 +82,8 @@ event3 = Event.create!(
   space: space_objects["スタジオE"],
   user: user2,
   starts_at: base_time + 4.hours,
-  ends_at: base_time + 6.hours
+  ends_at: base_time + 6.hours,
+  status: :approved
 )
 
 # Tomorrow's event - 12:00 PM to 2:00 PM
@@ -83,7 +93,8 @@ event4 = Event.create!(
   space: space_objects["スタジオC"],
   user: user1,
   starts_at: base_time + 1.day + 2.hours,
-  ends_at: base_time + 1.day + 4.hours
+  ends_at: base_time + 1.day + 4.hours,
+  status: :approved
 )
 
 # Event in 3 days - 8:00 PM to 9:00 PM
@@ -93,7 +104,52 @@ event5 = Event.create!(
   space: space_objects["スタジオA"],
   user: user2,
   starts_at: base_time + 3.days + 10.hours,
-  ends_at: base_time + 3.days + 11.hours
+  ends_at: base_time + 3.days + 11.hours,
+  status: :approved
+)
+
+# Pending event (tomorrow) - user2 requesting スタジオD
+event6 = Event.create!(
+  name: "ヨガレッスン",
+  description: "朝のヨガレッスン（承認待ち）",
+  space: space_objects["スタジオD"],
+  user: user2,
+  starts_at: base_time + 1.day,
+  ends_at: base_time + 1.day + 1.hour,
+  status: :pending
+)
+
+# Pending event (2 days later) - user1 requesting スタジオE
+event7 = Event.create!(
+  name: "社内勉強会",
+  description: "技術共有会（承認待ち）",
+  space: space_objects["スタジオE"],
+  user: user1,
+  starts_at: base_time + 2.days + 3.hours,
+  ends_at: base_time + 2.days + 5.hours,
+  status: :pending
+)
+
+# Pending event (3 days later) - user3 requesting スタジオB
+event8 = Event.create!(
+  name: "写真撮影会",
+  description: "ポートレート撮影会（承認待ち）",
+  space: space_objects["スタジオB"],
+  user: user3,
+  starts_at: base_time + 3.days + 2.hours,
+  ends_at: base_time + 3.days + 4.hours,
+  status: :pending
+)
+
+# Approved event (4 days later) - user3
+event9 = Event.create!(
+  name: "読書会",
+  description: "月例読書会",
+  space: space_objects["スタジオD"],
+  user: user3,
+  starts_at: base_time + 4.days + 1.hour,
+  ends_at: base_time + 4.days + 3.hours,
+  status: :approved
 )
 
 puts "Created #{Event.count} events"
@@ -113,6 +169,9 @@ EventParticipation.create!(user: user2, event: event4)
 
 EventParticipation.create!(user: user2, event: event5)
 
+EventParticipation.create!(user: user3, event: event3)
+EventParticipation.create!(user: user3, event: event9)
+
 puts "Created #{EventParticipation.count} event participations"
 
 puts "\n=== Seed data creation completed! ==="
@@ -124,4 +183,6 @@ puts "\nTest credentials:"
 puts "Email: tanaka@example.com"
 puts "Password: password123"
 puts "\nEmail: sato@example.com"
+puts "Password: password123"
+puts "\nEmail: suzuki@example.com"
 puts "Password: password123"

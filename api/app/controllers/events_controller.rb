@@ -1,15 +1,21 @@
 class EventsController < ApplicationController
-  before_action :require_login, only: %i[create update destroy]
-  before_action :set_event, only: %i[show update destroy]
+  before_action :require_login, only: %i[create update destroy approve reject]
+  before_action :set_event, only: %i[show update destroy approve reject]
   before_action :authorize_organizer, only: %i[update destroy]
+  before_action :require_admin, only: %i[approve reject]
 
   def index
     events = Event.includes(:space)
     events = events.where(space_id: params[:space_id]) if params[:space_id].present?
+    events = filter_rejected(events)
     render json: { events: events.map { |event| event_response(event) } }, status: :ok
   end
 
   def show
+    if @event.rejected? && !current_user&.admin? && current_user&.id != @event.user_id
+      return render json: { error: "not_found" }, status: :not_found
+    end
+
     render json: { event: event_response(@event) }, status: :ok
   end
 
@@ -35,6 +41,24 @@ class EventsController < ApplicationController
     head :no_content
   end
 
+  def approve
+    unless @event.pending?
+      return render json: { error: "only pending events can be approved" }, status: :unprocessable_entity
+    end
+
+    @event.approved!
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
+  def reject
+    unless @event.pending?
+      return render json: { error: "only pending events can be rejected" }, status: :unprocessable_entity
+    end
+
+    @event.rejected!
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
   private
 
   def set_event
@@ -46,6 +70,16 @@ class EventsController < ApplicationController
   def authorize_organizer
     unless @event.user_id == current_user.id
       render json: { error: "forbidden" }, status: :forbidden
+    end
+  end
+
+  def filter_rejected(events)
+    return events if current_user&.admin?
+
+    if current_user
+      events.where.not(status: :rejected).or(events.where(status: :rejected, user_id: current_user.id))
+    else
+      events.where.not(status: :rejected)
     end
   end
 
@@ -69,7 +103,9 @@ class EventsController < ApplicationController
         id: event.user.id,
         name: event.user.name
       },
-      is_organizer: current_user&.id == event.user_id
+      is_organizer: current_user&.id == event.user_id,
+      is_admin: current_user&.admin? || false,
+      status: event.status
     }
   end
 end

@@ -18,11 +18,18 @@ class ApplicationController < ActionController::API
     render json: { error: "unauthorized" }, status: :unauthorized
   end
 
+  def require_admin
+    return if current_user&.admin?
+
+    render json: { error: "forbidden" }, status: :forbidden
+  end
+
   def user_response(user)
     {
       id: user.id,
       name: user.name,
-      email: user.email
+      email: user.email,
+      admin: user.admin
     }
   end
 end
