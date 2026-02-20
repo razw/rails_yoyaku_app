@@ -22,14 +22,7 @@ class HomeController < ApplicationController
       }
     end
 
-    # Sort: available spaces first, then by next event time
-    spaces.sort_by! do |space|
-      if space[:status] == :available
-        space[:next_event_at] || Time.current + 100.years
-      else
-        space[:occupied_until]
-      end
-    end
+    spaces.sort_by! { |space| space[:id] }
 
     # Get all events for the selected date (for timeline view)
     day_start = target_date.beginning_of_day
