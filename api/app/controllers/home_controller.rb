@@ -29,7 +29,7 @@ class HomeController < ApplicationController
     day_end = target_date.end_of_day
 
     # Get all events that start or overlap with the selected date
-    all_events = Event.includes(:space, :user, :participants)
+    all_events = Event.includes(:space, :user)
                       .where("starts_at < ? AND ends_at > ?", day_end, day_start)
                       .order(:starts_at)
 
@@ -39,13 +39,10 @@ class HomeController < ApplicationController
                               .or(all_events.where(status: :rejected, user_id: current_user.id))
     end
 
-    # Get user's participated event IDs for quick lookup
-    user_participated_event_ids = current_user.participated_events.pluck(:id)
     user_organized_event_ids = current_user.organized_events.pluck(:id)
 
     timeline_events = all_events.map do |event|
       is_organizer = event.user_id == current_user.id
-      is_participant = user_participated_event_ids.include?(event.id)
 
       {
         id: event.id,
@@ -62,16 +59,14 @@ class HomeController < ApplicationController
           name: event.user.name
         },
         is_organizer: is_organizer,
-        is_participant: is_participant,
-        user_involved: is_organizer || is_participant,
+        user_involved: is_organizer,
         status: event.status
       }
     end
 
-    # Get all upcoming events that the current user is involved in (organizer or participant)
-    my_event_ids = (user_organized_event_ids + user_participated_event_ids).uniq
+    # Get all upcoming events that the current user is organizing
     my_events = Event.includes(:space, :user)
-                     .where(id: my_event_ids)
+                     .where(id: user_organized_event_ids)
                      .where("ends_at > ?", Time.current)
                      .order(:starts_at)
                      .map do |event|

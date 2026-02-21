@@ -5,8 +5,6 @@ require "rails_helper"
 RSpec.describe Event, type: :model do
   describe "associations" do
     it { is_expected.to belong_to(:space) }
-    it { is_expected.to have_many(:event_participations).dependent(:destroy) }
-    it { is_expected.to have_many(:participants).through(:event_participations) }
   end
 
   describe "enums" do

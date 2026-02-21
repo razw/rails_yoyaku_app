@@ -2,8 +2,6 @@ class User < ApplicationRecord
   has_secure_password
 
   has_many :organized_events, class_name: "Event", foreign_key: "user_id", dependent: :destroy
-  has_many :event_participations, dependent: :destroy
-  has_many :participated_events, through: :event_participations, source: :event
 
   before_validation :normalize_email
 

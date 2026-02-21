@@ -50,7 +50,6 @@ base_time = Time.zone.local(today.year, today.month, today.day, 10, 0, 0)
 
 # Clear existing events to avoid conflicts
 Event.destroy_all
-EventParticipation.destroy_all
 
 # Current event (occupied) - 9:30 AM to 10:30 AM
 event1 = Event.create!(
@@ -154,31 +153,10 @@ event9 = Event.create!(
 
 puts "Created #{Event.count} events"
 
-# Add event participations
-puts "Adding event participations..."
-EventParticipation.create!(user: user1, event: event1)
-EventParticipation.create!(user: user2, event: event1)
-
-EventParticipation.create!(user: user1, event: event2)
-
-EventParticipation.create!(user: user2, event: event3)
-EventParticipation.create!(user: user1, event: event3)
-
-EventParticipation.create!(user: user1, event: event4)
-EventParticipation.create!(user: user2, event: event4)
-
-EventParticipation.create!(user: user2, event: event5)
-
-EventParticipation.create!(user: user3, event: event3)
-EventParticipation.create!(user: user3, event: event9)
-
-puts "Created #{EventParticipation.count} event participations"
-
 puts "\n=== Seed data creation completed! ==="
 puts "Users: #{User.count}"
 puts "Spaces: #{Space.count}"
 puts "Events: #{Event.count}"
-puts "Event Participations: #{EventParticipation.count}"
 puts "\nTest credentials:"
 puts "Email: tanaka@example.com"
 puts "Password: password123"
