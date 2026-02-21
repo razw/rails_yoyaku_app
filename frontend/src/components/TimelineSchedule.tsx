@@ -285,7 +285,7 @@ export function TimelineSchedule({
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            自分が参加
+            自分の予約
           </button>
         </div>
 
@@ -335,6 +335,34 @@ export function TimelineSchedule({
                 const displayTop = isDragging && currentDragTop !== null ? currentDragTop : top;
                 const canDrag = !readOnly && !!onEventMove && event.is_organizer;
 
+                if (!event.is_organizer) {
+                  // Other users' events: show as blocked slot without details
+                  return (
+                    <div
+                      key={event.id}
+                      className={`absolute pointer-events-auto select-none cursor-default ${
+                        event.status === 'pending'
+                          ? 'border border-dashed border-gray-300'
+                          : 'border border-gray-300'
+                      }`}
+                      style={{
+                        top: `${displayTop}px`,
+                        height: `${height}px`,
+                        left: `${left}%`,
+                        width: `${laneWidth}%`,
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        overflow: 'hidden',
+                        backgroundImage: 'repeating-linear-gradient(45deg, #e5e7eb 0px, #e5e7eb 4px, #f3f4f6 4px, #f3f4f6 10px)',
+                      }}
+                    >
+                      <div className="text-[10px] text-gray-400 font-medium truncate">
+                        {event.status === 'pending' ? '申請中' : '予約済み'}
+                      </div>
+                    </div>
+                  );
+                }
+
                 return (
                   <div
                     key={event.id}
@@ -348,14 +376,10 @@ export function TimelineSchedule({
                       readOnly ? '' : 'hover:shadow-lg'
                     } ${
                       event.status === 'pending'
-                        ? event.user_involved
-                          ? 'bg-amber-50 border-2 border-dashed border-amber-400'
-                          : 'bg-amber-50 border border-dashed border-amber-300'
+                        ? 'bg-amber-50 border-2 border-dashed border-amber-400'
                         : event.status === 'rejected'
                           ? 'bg-gray-50 border border-gray-300 opacity-50'
-                          : event.user_involved
-                            ? 'bg-teal-100 border-2 border-teal-500'
-                            : 'bg-gray-100 border border-gray-300'
+                          : 'bg-teal-100 border-2 border-teal-500'
                     }`}
                     style={{
                       top: `${displayTop}px`,
@@ -376,11 +400,9 @@ export function TimelineSchedule({
                       {event.name}
                     </div>
                     <div className="flex gap-1 mt-1 flex-wrap">
-                      {event.is_organizer && (
-                        <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded">
-                          主催
-                        </span>
-                      )}
+                      <span className="inline-block text-[10px] px-1 bg-teal-600 text-white rounded">
+                        主催
+                      </span>
                       {event.status === 'pending' && (
                         <span className="inline-block text-[10px] px-1 bg-amber-500 text-white rounded">
                           申請中
@@ -401,7 +423,7 @@ export function TimelineSchedule({
 
         {filteredEvents.length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            {filter === 'mine' ? '参加予定のイベントはありません' : 'イベントはありません'}
+            {filter === 'mine' ? '自分の予約はありません' : 'イベントはありません'}
           </div>
         )}
       </div>

@@ -81,7 +81,7 @@ export interface EventSummary {
   ends_at: string;
 }
 
-// Timeline event with participation status
+// Timeline event
 export interface TimelineEvent {
   id: number;
   name: string;
@@ -97,7 +97,6 @@ export interface TimelineEvent {
     name: string;
   };
   is_organizer: boolean;
-  is_participant: boolean;
   user_involved: boolean;
   status: 'pending' | 'approved' | 'rejected';
 }

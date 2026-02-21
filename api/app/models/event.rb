@@ -2,9 +2,6 @@ class Event < ApplicationRecord
   belongs_to :space
   belongs_to :user
 
-  has_many :event_participations, dependent: :destroy
-  has_many :participants, through: :event_participations, source: :user
-
   enum :status, { pending: 0, approved: 1, rejected: 2 }
 
   validates :name, presence: true

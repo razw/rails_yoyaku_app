@@ -7,15 +7,36 @@ import { SpaceCard } from "@/components/SpaceCard";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
 import { homeApi, eventsApi } from "@/lib/api";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import type { HomeResponse } from "@/types";
 
-export default function Home() {
+function formatDateParam(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function HomeContent() {
   const { user } = useAuth();
   const router = useRouter();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSpaceId, setSelectedSpaceId] = useState<number | null>(null);
+  const searchParams = useSearchParams();
+
+  const [selectedDate, setSelectedDate] = useState<Date>(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      const [year, month, day] = dateParam.split('-').map(Number);
+      return new Date(year, month - 1, day);
+    }
+    return new Date();
+  });
+
+  const [selectedSpaceId, setSelectedSpaceId] = useState<number | null>(() => {
+    const spaceParam = searchParams.get('spaceId');
+    return spaceParam ? Number(spaceParam) : null;
+  });
+
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,11 +45,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     try {
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, '0');
-      const day = String(date.getDate()).padStart(2, '0');
-      const dateString = `${year}-${month}-${day}`;
-      const data = await homeApi.getHomeData({ date: dateString });
+      const data = await homeApi.getHomeData({ date: formatDateParam(date) });
       setHomeData(data);
     } catch (err) {
       console.error('Failed to load home data:', err);
@@ -46,13 +63,20 @@ export default function Home() {
 
   const handleDateChange = (date: Date) => {
     setSelectedDate(date);
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('date', formatDateParam(date));
+    router.replace(`/?${params.toString()}`);
   };
 
-  const formatDateParam = (date: Date) => {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  const handleSpaceChange = (spaceId: number | null) => {
+    setSelectedSpaceId(spaceId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (spaceId !== null) {
+      params.set('spaceId', String(spaceId));
+    } else {
+      params.delete('spaceId');
+    }
+    router.replace(`/?${params.toString()}`);
   };
 
   const handleBookSpace = (spaceId: number) => {
@@ -151,7 +175,7 @@ export default function Home() {
               {homeData && (
                 <select
                   value={selectedSpaceId ?? ''}
-                  onChange={(e) => setSelectedSpaceId(e.target.value ? Number(e.target.value) : null)}
+                  onChange={(e) => handleSpaceChange(e.target.value ? Number(e.target.value) : null)}
                   className="px-4 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-teal-500 bg-white"
                 >
                   <option value="">スペースを選択</option>
@@ -355,5 +379,13 @@ export default function Home() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }
