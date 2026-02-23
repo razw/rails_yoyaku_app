@@ -358,6 +358,7 @@ function HomeContent() {
                   onEventClick={handleEventClick}
                   onTimeSlotClick={handleTimeSlotClick}
                   onEventMove={handleMoveEvent}
+                  isAdmin={user.admin}
                 />
               ) : (
                 <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">

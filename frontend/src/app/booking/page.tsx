@@ -109,6 +109,7 @@ function BookingContent() {
             selectedSpaceId={currentSpaceId}
             onEventClick={noop}
             readOnly
+            isAdmin={user?.admin}
           />
         ) : (
           <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 text-center">

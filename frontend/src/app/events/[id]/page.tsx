@@ -316,6 +316,7 @@ export default function EventDetailPage({
                   selectedDate={selectedDate}
                   selectedSpaceId={eventData.space.id}
                   onEventClick={(eventId) => router.push(`/events/${eventId}`)}
+                  isAdmin={user.admin}
                 />
               </div>
             )}
