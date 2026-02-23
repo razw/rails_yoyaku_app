@@ -37,6 +37,7 @@ docker compose exec api bin/rails db:seed
 | フロントエンド | http://localhost:3001 |
 | API | http://localhost:3000 |
 | Swagger UI | http://localhost:3000/api-docs |
+| Mailpit (メール確認) | http://localhost:8025 |
 
 ### テストアカウント（シードデータ投入後）
 
@@ -45,6 +46,21 @@ docker compose exec api bin/rails db:seed
 | tanaka@example.com | password123 | 管理者 |
 | sato@example.com | password123 | 一般 |
 | suzuki@example.com | password123 | 一般 |
+
+## メール通知
+
+開発環境では [Mailpit](https://github.com/axllent/mailpit) を使用してメールを受信します。実際には送信されません。
+
+以下のタイミングでメールが送信されます。
+
+| タイミング | 送信先 |
+|---|---|
+| ユーザー登録 | 登録者本人 |
+| 予約申請（イベント作成） | 申請者本人 |
+| 予約承認 | 申請者本人 |
+| 予約却下 | 申請者本人 |
+
+送受信したメールは http://localhost:8025 で確認できます。
 
 ## 停止
 
