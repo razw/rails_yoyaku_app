@@ -20,14 +20,8 @@ class EventsController < ApplicationController
   end
 
   def create
-    event = current_user.organized_events.build(event_params)
-    event.status = :approved if current_user.admin?
-    if event.save
-      if current_user.admin?
-        UserMailer.booking_approved(event).deliver_later
-      else
-        UserMailer.booking_request(event).deliver_later
-      end
+    event = Events::CreateService.new(current_user, event_params).call
+    if event.persisted?
       render json: { event: event_response(event) }, status: :created
     else
       render json: { errors: event.errors.full_messages }, status: :unprocessable_entity
