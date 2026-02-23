@@ -4,6 +4,7 @@ class UsersController < ApplicationController
 
     if user.save
       session[:user_id] = user.id
+      UserMailer.welcome(user).deliver_later
       render json: { user: user_response(user) }, status: :created
     else
       render json: { errors: user.errors.full_messages }, status: :unprocessable_entity

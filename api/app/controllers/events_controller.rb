@@ -22,6 +22,7 @@ class EventsController < ApplicationController
   def create
     event = current_user.organized_events.build(event_params)
     if event.save
+      UserMailer.booking_request(event).deliver_later
       render json: { event: event_response(event) }, status: :created
     else
       render json: { errors: event.errors.full_messages }, status: :unprocessable_entity
@@ -47,6 +48,7 @@ class EventsController < ApplicationController
     end
 
     @event.approved!
+    UserMailer.booking_approved(@event).deliver_later
     render json: { event: event_response(@event) }, status: :ok
   end
 
@@ -56,6 +58,7 @@ class EventsController < ApplicationController
     end
 
     @event.rejected!
+    UserMailer.booking_rejected(@event).deliver_later
     render json: { event: event_response(@event) }, status: :ok
   end
 
