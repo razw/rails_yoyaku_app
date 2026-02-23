@@ -40,6 +40,12 @@ RSpec.describe "Users", type: :request do
         post signup_path, params: valid_params, as: :json
         expect(session[:user_id]).to eq(User.last.id)
       end
+
+      it "enqueues a welcome email" do
+        expect {
+          post signup_path, params: valid_params, as: :json
+        }.to have_enqueued_mail(UserMailer, :welcome)
+      end
     end
 
     context "with invalid parameters" do

@@ -150,6 +150,17 @@ RSpec.describe "Events", type: :request do
             "space_id" => space.id
           )
         end
+
+        it "creates event with pending status" do
+          post events_path, params: valid_params, as: :json
+          expect(Event.last).to be_pending
+        end
+
+        it "enqueues a booking_request email" do
+          expect {
+            post events_path, params: valid_params, as: :json
+          }.to have_enqueued_mail(UserMailer, :booking_request)
+        end
       end
 
       context "with invalid params" do
@@ -243,6 +254,31 @@ RSpec.describe "Events", type: :request do
             post events_path, params: overlapping_params, as: :json
           }.not_to change(Event, :count)
         end
+      end
+    end
+
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
+
+      it "creates event with approved status" do
+        post events_path, params: valid_params, as: :json
+        expect(Event.last).to be_approved
+      end
+
+      it "enqueues a booking_approved email" do
+        expect {
+          post events_path, params: valid_params, as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_approved)
+      end
+
+      it "does not enqueue a booking_request email" do
+        expect {
+          post events_path, params: valid_params, as: :json
+        }.not_to have_enqueued_mail(UserMailer, :booking_request)
       end
     end
 
@@ -346,6 +382,12 @@ RSpec.describe "Events", type: :request do
         expect(event.reload).to be_approved
       end
 
+      it "enqueues a booking_approved email" do
+        expect {
+          patch approve_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_approved)
+      end
+
       it "returns error for non-pending event" do
         event.approved!
         patch approve_event_path(event), as: :json
@@ -395,6 +437,12 @@ RSpec.describe "Events", type: :request do
       it "persists the status change" do
         patch reject_event_path(event), as: :json
         expect(event.reload).to be_rejected
+      end
+
+      it "enqueues a booking_rejected email" do
+        expect {
+          patch reject_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_rejected)
       end
 
       it "returns error for non-pending event" do
