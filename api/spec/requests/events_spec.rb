@@ -150,6 +150,17 @@ RSpec.describe "Events", type: :request do
             "space_id" => space.id
           )
         end
+
+        it "creates event with pending status" do
+          post events_path, params: valid_params, as: :json
+          expect(Event.last).to be_pending
+        end
+
+        it "enqueues a booking_request email" do
+          expect {
+            post events_path, params: valid_params, as: :json
+          }.to have_enqueued_mail(UserMailer, :booking_request)
+        end
       end
 
       context "with invalid params" do
@@ -246,6 +257,31 @@ RSpec.describe "Events", type: :request do
       end
     end
 
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
+
+      it "creates event with approved status" do
+        post events_path, params: valid_params, as: :json
+        expect(Event.last).to be_approved
+      end
+
+      it "enqueues a booking_approved email" do
+        expect {
+          post events_path, params: valid_params, as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_approved)
+      end
+
+      it "does not enqueue a booking_request email" do
+        expect {
+          post events_path, params: valid_params, as: :json
+        }.not_to have_enqueued_mail(UserMailer, :booking_request)
+      end
+    end
+
     context "when not logged in" do
       it "returns unauthorized status" do
         post events_path, params: valid_params, as: :json
@@ -264,8 +300,12 @@ RSpec.describe "Events", type: :request do
     let!(:event) { create(:event, name: "旧イベント名", space: space, user: user) }
     let(:update_params) { { event: { name: "新イベント名" } } }
 
-    context "when logged in" do
-      before { login }
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
 
       context "with valid params" do
         it "returns ok status" do
@@ -311,6 +351,20 @@ RSpec.describe "Events", type: :request do
       end
     end
 
+    context "when logged in as non-admin" do
+      before { login }
+
+      it "returns forbidden status" do
+        patch event_path(event), params: update_params, as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not update the event" do
+        patch event_path(event), params: update_params, as: :json
+        expect(event.reload.name).to eq("旧イベント名")
+      end
+    end
+
     context "when not logged in" do
       it "returns unauthorized status" do
         patch event_path(event), params: update_params, as: :json
@@ -344,6 +398,12 @@ RSpec.describe "Events", type: :request do
       it "persists the status change" do
         patch approve_event_path(event), as: :json
         expect(event.reload).to be_approved
+      end
+
+      it "enqueues a booking_approved email" do
+        expect {
+          patch approve_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_approved)
       end
 
       it "returns error for non-pending event" do
@@ -397,6 +457,12 @@ RSpec.describe "Events", type: :request do
         expect(event.reload).to be_rejected
       end
 
+      it "enqueues a booking_rejected email" do
+        expect {
+          patch reject_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :booking_rejected)
+      end
+
       it "returns error for non-pending event" do
         event.approved!
         patch reject_event_path(event), as: :json
@@ -429,8 +495,12 @@ RSpec.describe "Events", type: :request do
   describe "DELETE /events/:id" do
     let!(:event) { create(:event, space: space, user: user) }
 
-    context "when logged in" do
-      before { login }
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
 
       it "returns no_content status" do
         delete event_path(event), as: :json
@@ -451,6 +521,21 @@ RSpec.describe "Events", type: :request do
       end
     end
 
+    context "when logged in as non-admin" do
+      before { login }
+
+      it "returns forbidden status" do
+        delete event_path(event), as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not delete the event" do
+        expect {
+          delete event_path(event), as: :json
+        }.not_to change(Event, :count)
+      end
+    end
+
     context "when not logged in" do
       it "returns unauthorized status" do
         delete event_path(event), as: :json
@@ -461,6 +546,116 @@ RSpec.describe "Events", type: :request do
         expect {
           delete event_path(event), as: :json
         }.not_to change(Event, :count)
+      end
+    end
+  end
+
+  describe "PATCH /events/:id/request_cancellation" do
+    let!(:event) { create(:event, :approved, space: space, user: user) }
+
+    context "when logged in as organizer" do
+      before { login }
+
+      it "returns ok status" do
+        patch request_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "changes status to cancel_requested" do
+        patch request_cancellation_event_path(event), as: :json
+        expect(event.reload).to be_cancel_requested
+      end
+
+      it "enqueues a cancellation_requested email" do
+        expect {
+          patch request_cancellation_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :cancellation_requested)
+      end
+
+      it "returns error when event is not approved" do
+        event.pending!
+        patch request_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context "when logged in as a different user" do
+      let!(:other_user) { create(:user, email: "other@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "other@example.com", password: "password123" }, as: :json
+      end
+
+      it "returns forbidden" do
+        patch request_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not change the status" do
+        patch request_cancellation_event_path(event), as: :json
+        expect(event.reload).to be_approved
+      end
+    end
+
+    context "when not logged in" do
+      it "returns unauthorized" do
+        patch request_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
+  describe "PATCH /events/:id/approve_cancellation" do
+    let!(:event) { create(:event, :cancel_requested, space: space, user: user) }
+
+    context "when logged in as admin" do
+      let!(:admin_user) { create(:user, :admin, email: "admin@example.com", password: "password123") }
+
+      before do
+        post login_path, params: { email: "admin@example.com", password: "password123" }, as: :json
+      end
+
+      it "returns ok status" do
+        patch approve_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "changes status to cancelled" do
+        patch approve_cancellation_event_path(event), as: :json
+        expect(event.reload).to be_cancelled
+      end
+
+      it "enqueues a cancellation_approved email" do
+        expect {
+          patch approve_cancellation_event_path(event), as: :json
+        }.to have_enqueued_mail(UserMailer, :cancellation_approved)
+      end
+
+      it "returns error when event is not cancel_requested" do
+        event.approved!
+        patch approve_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    context "when logged in as non-admin" do
+      before { login }
+
+      it "returns forbidden" do
+        patch approve_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "does not change the status" do
+        patch approve_cancellation_event_path(event), as: :json
+        expect(event.reload).to be_cancel_requested
+      end
+    end
+
+    context "when not logged in" do
+      it "returns unauthorized" do
+        patch approve_cancellation_event_path(event), as: :json
+        expect(response).to have_http_status(:unauthorized)
       end
     end
   end

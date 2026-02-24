@@ -12,6 +12,7 @@ interface TimelineScheduleProps {
   onTimeSlotClick?: (startTime: Date) => void;
   onEventMove?: (eventId: number, newStartsAt: string, newEndsAt: string) => Promise<void>;
   readOnly?: boolean;
+  isAdmin?: boolean;
 }
 
 interface TimeSlot {
@@ -40,6 +41,7 @@ export function TimelineSchedule({
   onTimeSlotClick,
   onEventMove,
   readOnly = false,
+  isAdmin = false,
 }: TimelineScheduleProps) {
   const [filter, setFilter] = useState<'all' | 'mine'>('all');
 
@@ -160,7 +162,7 @@ export function TimelineSchedule({
   }, [selectedDate]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent, eventPos: EventPosition) => {
-    if (!onEventMove || !eventPos.event.is_organizer) return;
+    if (!onEventMove || !isAdmin) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -186,7 +188,7 @@ export function TimelineSchedule({
     setCurrentDragTop(eventPos.top);
 
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [onEventMove]);
+  }, [onEventMove, isAdmin]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragStartInfo.current || draggingEventId === null) return;
@@ -333,10 +335,65 @@ export function TimelineSchedule({
                 const left = lane * laneWidth;
                 const isDragging = draggingEventId === event.id;
                 const displayTop = isDragging && currentDragTop !== null ? currentDragTop : top;
-                const canDrag = !readOnly && !!onEventMove && event.is_organizer;
+                const canDrag = !readOnly && !!onEventMove && isAdmin;
 
                 if (!event.is_organizer) {
-                  // Other users' events: show as blocked slot without details
+                  if (isAdmin) {
+                    // Admin view: show full event details for all events
+                    return (
+                      <div
+                        key={event.id}
+                        onClick={readOnly ? undefined : () => onEventClick(event.id)}
+                        className={`absolute pointer-events-auto select-none cursor-pointer hover:shadow-lg ${
+                          event.status === 'pending'
+                            ? 'bg-amber-50 border-2 border-dashed border-amber-400'
+                            : event.status === 'rejected' || event.status === 'cancelled'
+                              ? 'bg-gray-50 border border-gray-300 opacity-50'
+                              : event.status === 'cancel_requested'
+                                ? 'bg-orange-50 border-2 border-dashed border-orange-400'
+                                : 'bg-blue-100 border-2 border-blue-400'
+                        }`}
+                        style={{
+                          top: `${displayTop}px`,
+                          height: `${height}px`,
+                          left: `${left}%`,
+                          width: `${laneWidth}%`,
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div className="text-xs font-semibold truncate">{event.name}</div>
+                        <div className="flex gap-1 mt-1 flex-wrap">
+                          <span className="inline-block text-[10px] px-1 bg-blue-500 text-white rounded truncate max-w-full">
+                            {event.organizer.name}
+                          </span>
+                          {event.status === 'pending' && (
+                            <span className="inline-block text-[10px] px-1 bg-amber-500 text-white rounded">
+                              申請中
+                            </span>
+                          )}
+                          {event.status === 'cancel_requested' && (
+                            <span className="inline-block text-[10px] px-1 bg-orange-500 text-white rounded">
+                              キャンセル申請中
+                            </span>
+                          )}
+                          {event.status === 'rejected' && (
+                            <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                              却下
+                            </span>
+                          )}
+                          {event.status === 'cancelled' && (
+                            <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                              キャンセル済み
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Non-admin: show as blocked slot without details
                   return (
                     <div
                       key={event.id}
@@ -377,9 +434,11 @@ export function TimelineSchedule({
                     } ${
                       event.status === 'pending'
                         ? 'bg-amber-50 border-2 border-dashed border-amber-400'
-                        : event.status === 'rejected'
+                        : event.status === 'rejected' || event.status === 'cancelled'
                           ? 'bg-gray-50 border border-gray-300 opacity-50'
-                          : 'bg-teal-100 border-2 border-teal-500'
+                          : event.status === 'cancel_requested'
+                            ? 'bg-orange-50 border-2 border-dashed border-orange-400'
+                            : 'bg-teal-100 border-2 border-teal-500'
                     }`}
                     style={{
                       top: `${displayTop}px`,
@@ -408,9 +467,19 @@ export function TimelineSchedule({
                           申請中
                         </span>
                       )}
+                      {event.status === 'cancel_requested' && (
+                        <span className="inline-block text-[10px] px-1 bg-orange-500 text-white rounded">
+                          キャンセル申請中
+                        </span>
+                      )}
                       {event.status === 'rejected' && (
                         <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
                           却下
+                        </span>
+                      )}
+                      {event.status === 'cancelled' && (
+                        <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                          キャンセル済み
                         </span>
                       )}
                     </div>

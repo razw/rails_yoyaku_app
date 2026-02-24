@@ -71,7 +71,7 @@ export interface Event {
     name: string;
   };
   is_organizer: boolean;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancel_requested' | 'cancelled';
 }
 
 export interface EventSummary {
@@ -98,7 +98,7 @@ export interface TimelineEvent {
   };
   is_organizer: boolean;
   user_involved: boolean;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancel_requested' | 'cancelled';
 }
 
 // My event (for home page table, not date-filtered)
@@ -112,7 +112,7 @@ export interface MyEvent {
     name: string;
   };
   is_organizer: boolean;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancel_requested' | 'cancelled';
 }
 
 // Pending event for admin review
@@ -129,7 +129,7 @@ export interface PendingEvent {
     id: number;
     name: string;
   };
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected' | 'cancel_requested' | 'cancelled';
 }
 
 // Home page response
@@ -138,6 +138,7 @@ export interface HomeResponse {
   timeline_events: TimelineEvent[];
   my_events: MyEvent[];
   pending_events: PendingEvent[];
+  cancel_requested_events: PendingEvent[];
   current_time: string;
   target_date: string;
 }
@@ -172,7 +173,7 @@ export interface EventResponse {
     };
     is_organizer: boolean;
     is_admin: boolean;
-    status: 'pending' | 'approved' | 'rejected';
+    status: 'pending' | 'approved' | 'rejected' | 'cancel_requested' | 'cancelled';
   };
 }
 

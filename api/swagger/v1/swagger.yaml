@@ -438,6 +438,12 @@ components:
           format: date-time
         space_id:
           type: integer
+        status:
+          type: string
+          enum:
+          - pending
+          - approved
+          - rejected
         space:
           type: object
           properties:
@@ -454,6 +460,7 @@ components:
       - starts_at
       - ends_at
       - space_id
+      - status
       - space
     EventInput:
       type: object

@@ -21,4 +21,16 @@ class UserMailer < ApplicationMailer
     @user = event.user
     mail(to: @user.email, subject: "予約が却下されました - #{@event.name}")
   end
+
+  def cancellation_requested(event)
+    @event = event
+    @user = event.user
+    mail(to: @user.email, subject: "キャンセル申請を受け付けました - #{@event.name}")
+  end
+
+  def cancellation_approved(event)
+    @event = event
+    @user = event.user
+    mail(to: @user.email, subject: "キャンセルが承認されました - #{@event.name}")
+  end
 end

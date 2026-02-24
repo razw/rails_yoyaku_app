@@ -334,6 +334,7 @@ export default function EventEditPage({
                   selectedSpaceId={eventSpaceId}
                   onEventClick={(eventId) => router.push(`/events/${eventId}`)}
                   readOnly
+                  isAdmin={user?.admin}
                 />
               </div>
             )}
