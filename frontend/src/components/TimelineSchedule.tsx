@@ -188,7 +188,7 @@ export function TimelineSchedule({
     setCurrentDragTop(eventPos.top);
 
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, [onEventMove]);
+  }, [onEventMove, isAdmin]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!dragStartInfo.current || draggingEventId === null) return;
