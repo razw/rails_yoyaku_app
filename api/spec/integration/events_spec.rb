@@ -12,12 +12,26 @@ RSpec.describe "Events API", type: :request do
     )
   end
 
+  let!(:admin_user) do
+    User.create!(
+      name: "Admin User",
+      email: "admin@example.com",
+      password: "password123",
+      password_confirmation: "password123",
+      admin: true
+    )
+  end
+
   let!(:test_space) do
     Space.create!(name: "スタジオA", description: "小規模なスペース", capacity: 5, price: "1,000円/時間", address: "東京都渋谷区1-1-1")
   end
 
   def login_as_test_user
     post "/login", params: { email: "test@example.com", password: "password123" }, as: :json
+  end
+
+  def login_as_admin
+    post "/login", params: { email: "admin@example.com", password: "password123" }, as: :json
   end
 
   path "/events" do
@@ -186,7 +200,7 @@ RSpec.describe "Events API", type: :request do
                },
                required: %w[ event ]
 
-        before { login_as_test_user }
+        before { login_as_admin }
 
         let(:id) do
           Event.create!(name: "旧イベント名", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
@@ -236,7 +250,7 @@ RSpec.describe "Events API", type: :request do
       response "422", "バリデーションエラー" do
         schema "$ref" => "#/components/schemas/ValidationErrors"
 
-        before { login_as_test_user }
+        before { login_as_admin }
 
         let(:id) do
           Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id
@@ -260,7 +274,7 @@ RSpec.describe "Events API", type: :request do
       parameter name: :id, in: :path, type: :integer, description: "イベントID"
 
       response "204", "イベント削除成功" do
-        before { login_as_test_user }
+        before { login_as_admin }
 
         let(:id) do
           Event.create!(name: "テストイベント", starts_at: 1.day.from_now, ends_at: 1.day.from_now + 2.hours, space: test_space, user: test_user).id

@@ -8,7 +8,7 @@ RSpec.describe Event, type: :model do
   end
 
   describe "enums" do
-    it { is_expected.to define_enum_for(:status).with_values(pending: 0, approved: 1, rejected: 2) }
+    it { is_expected.to define_enum_for(:status).with_values(pending: 0, approved: 1, rejected: 2, cancel_requested: 3, cancelled: 4) }
 
     it "defaults to pending" do
       event = Event.new
