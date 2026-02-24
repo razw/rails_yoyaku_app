@@ -214,4 +214,14 @@ export const eventsApi = {
     apiRequest<EventResponse>(`/events/${eventId}/reject`, {
       method: "PATCH",
     }),
+
+  requestCancellation: (eventId: number): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}/request_cancellation`, {
+      method: "PATCH",
+    }),
+
+  approveCancellation: (eventId: number): Promise<EventResponse> =>
+    apiRequest<EventResponse>(`/events/${eventId}/approve_cancellation`, {
+      method: "PATCH",
+    }),
 };

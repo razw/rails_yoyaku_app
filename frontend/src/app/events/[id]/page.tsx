@@ -34,6 +34,8 @@ export default function EventDetailPage({
   const [deleting, setDeleting] = useState(false);
   const [approving, setApproving] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [requestingCancellation, setRequestingCancellation] = useState(false);
+  const [approvingCancellation, setApprovingCancellation] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -104,6 +106,42 @@ export default function EventDetailPage({
       }
     } finally {
       setApproving(false);
+    }
+  };
+
+  const handleRequestCancellation = async () => {
+    if (!eventData) return;
+    setRequestingCancellation(true);
+    setError(null);
+    try {
+      const data = await eventsApi.requestCancellation(eventData.id);
+      setEventData(data.event);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("キャンセル申請に失敗しました");
+      }
+    } finally {
+      setRequestingCancellation(false);
+    }
+  };
+
+  const handleApproveCancellation = async () => {
+    if (!eventData) return;
+    setApprovingCancellation(true);
+    setError(null);
+    try {
+      const data = await eventsApi.approveCancellation(eventData.id);
+      setEventData(data.event);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.message);
+      } else {
+        setError("キャンセル承認に失敗しました");
+      }
+    } finally {
+      setApprovingCancellation(false);
     }
   };
 
@@ -202,6 +240,16 @@ export default function EventDetailPage({
                         却下
                       </span>
                     )}
+                    {eventData.status === 'cancel_requested' && (
+                      <span className="inline-block text-xs px-2 py-0.5 bg-orange-100 text-orange-700 border border-orange-300 rounded-full font-medium">
+                        キャンセル申請中
+                      </span>
+                    )}
+                    {eventData.status === 'cancelled' && (
+                      <span className="inline-block text-xs px-2 py-0.5 bg-gray-100 text-gray-500 border border-gray-300 rounded-full font-medium">
+                        キャンセル済み
+                      </span>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -239,7 +287,7 @@ export default function EventDetailPage({
                     </div>
                   )}
 
-                  {eventData.is_organizer && (
+                  {eventData.is_admin && (
                     <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
                       <button
                         type="button"
@@ -254,6 +302,19 @@ export default function EventDetailPage({
                         className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700"
                       >
                         編集
+                      </button>
+                    </div>
+                  )}
+
+                  {eventData.is_organizer && eventData.status === 'approved' && (
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                      <button
+                        type="button"
+                        onClick={handleRequestCancellation}
+                        disabled={requestingCancellation}
+                        className="px-4 py-2 text-orange-700 bg-white border border-orange-300 rounded-md hover:bg-orange-50 disabled:opacity-50"
+                      >
+                        {requestingCancellation ? "申請中..." : "キャンセル申請"}
                       </button>
                     </div>
                   )}
@@ -275,6 +336,19 @@ export default function EventDetailPage({
                         className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700 disabled:opacity-50"
                       >
                         {approving ? "承認中..." : "承認"}
+                      </button>
+                    </div>
+                  )}
+
+                  {eventData.is_admin && eventData.status === 'cancel_requested' && (
+                    <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
+                      <button
+                        type="button"
+                        onClick={handleApproveCancellation}
+                        disabled={approvingCancellation}
+                        className="px-4 py-2 text-white bg-orange-600 rounded-md hover:bg-orange-700 disabled:opacity-50"
+                      >
+                        {approvingCancellation ? "承認中..." : "キャンセルを承認"}
                       </button>
                     </div>
                   )}

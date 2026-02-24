@@ -162,7 +162,7 @@ export function TimelineSchedule({
   }, [selectedDate]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent, eventPos: EventPosition) => {
-    if (!onEventMove || !eventPos.event.is_organizer) return;
+    if (!onEventMove || !isAdmin) return;
 
     e.preventDefault();
     e.stopPropagation();
@@ -335,7 +335,7 @@ export function TimelineSchedule({
                 const left = lane * laneWidth;
                 const isDragging = draggingEventId === event.id;
                 const displayTop = isDragging && currentDragTop !== null ? currentDragTop : top;
-                const canDrag = !readOnly && !!onEventMove && event.is_organizer;
+                const canDrag = !readOnly && !!onEventMove && isAdmin;
 
                 if (!event.is_organizer) {
                   if (isAdmin) {
@@ -347,9 +347,11 @@ export function TimelineSchedule({
                         className={`absolute pointer-events-auto select-none cursor-pointer hover:shadow-lg ${
                           event.status === 'pending'
                             ? 'bg-amber-50 border-2 border-dashed border-amber-400'
-                            : event.status === 'rejected'
+                            : event.status === 'rejected' || event.status === 'cancelled'
                               ? 'bg-gray-50 border border-gray-300 opacity-50'
-                              : 'bg-blue-100 border-2 border-blue-400'
+                              : event.status === 'cancel_requested'
+                                ? 'bg-orange-50 border-2 border-dashed border-orange-400'
+                                : 'bg-blue-100 border-2 border-blue-400'
                         }`}
                         style={{
                           top: `${displayTop}px`,
@@ -371,9 +373,19 @@ export function TimelineSchedule({
                               申請中
                             </span>
                           )}
+                          {event.status === 'cancel_requested' && (
+                            <span className="inline-block text-[10px] px-1 bg-orange-500 text-white rounded">
+                              キャンセル申請中
+                            </span>
+                          )}
                           {event.status === 'rejected' && (
                             <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
                               却下
+                            </span>
+                          )}
+                          {event.status === 'cancelled' && (
+                            <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                              キャンセル済み
                             </span>
                           )}
                         </div>
@@ -422,9 +434,11 @@ export function TimelineSchedule({
                     } ${
                       event.status === 'pending'
                         ? 'bg-amber-50 border-2 border-dashed border-amber-400'
-                        : event.status === 'rejected'
+                        : event.status === 'rejected' || event.status === 'cancelled'
                           ? 'bg-gray-50 border border-gray-300 opacity-50'
-                          : 'bg-teal-100 border-2 border-teal-500'
+                          : event.status === 'cancel_requested'
+                            ? 'bg-orange-50 border-2 border-dashed border-orange-400'
+                            : 'bg-teal-100 border-2 border-teal-500'
                     }`}
                     style={{
                       top: `${displayTop}px`,
@@ -453,9 +467,19 @@ export function TimelineSchedule({
                           申請中
                         </span>
                       )}
+                      {event.status === 'cancel_requested' && (
+                        <span className="inline-block text-[10px] px-1 bg-orange-500 text-white rounded">
+                          キャンセル申請中
+                        </span>
+                      )}
                       {event.status === 'rejected' && (
                         <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
                           却下
+                        </span>
+                      )}
+                      {event.status === 'cancelled' && (
+                        <span className="inline-block text-[10px] px-1 bg-gray-400 text-white rounded">
+                          キャンセル済み
                         </span>
                       )}
                     </div>

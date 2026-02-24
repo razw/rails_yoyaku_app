@@ -106,11 +106,34 @@ class HomeController < ApplicationController
       []
     end
 
+    cancel_requested_events = if current_user.admin?
+      Event.cancel_requested.includes(:space, :user).order(:starts_at).map do |event|
+        {
+          id: event.id,
+          name: event.name,
+          starts_at: event.starts_at,
+          ends_at: event.ends_at,
+          space: {
+            id: event.space.id,
+            name: event.space.name
+          },
+          organizer: {
+            id: event.user.id,
+            name: event.user.name
+          },
+          status: event.status
+        }
+      end
+    else
+      []
+    end
+
     render json: {
       spaces: spaces,
       timeline_events: timeline_events,
       my_events: my_events,
       pending_events: pending_events,
+      cancel_requested_events: cancel_requested_events,
       current_time: target_time,
       target_date: target_date
     }

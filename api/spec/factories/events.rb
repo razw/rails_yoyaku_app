@@ -16,5 +16,13 @@ FactoryBot.define do
     trait :rejected do
       status { :rejected }
     end
+
+    trait :cancel_requested do
+      status { :cancel_requested }
+    end
+
+    trait :cancelled do
+      status { :cancelled }
+    end
   end
 end

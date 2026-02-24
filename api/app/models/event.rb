@@ -2,7 +2,7 @@ class Event < ApplicationRecord
   belongs_to :space
   belongs_to :user
 
-  enum :status, { pending: 0, approved: 1, rejected: 2 }
+  enum :status, { pending: 0, approved: 1, rejected: 2, cancel_requested: 3, cancelled: 4 }
 
   validates :name, presence: true
   validates :starts_at, presence: true

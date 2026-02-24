@@ -1,8 +1,8 @@
 class EventsController < ApplicationController
-  before_action :require_login, only: %i[create update destroy approve reject]
-  before_action :set_event, only: %i[show update destroy approve reject]
-  before_action :authorize_organizer, only: %i[update destroy]
-  before_action :require_admin, only: %i[approve reject]
+  before_action :require_login, only: %i[create update destroy approve reject request_cancellation approve_cancellation]
+  before_action :set_event, only: %i[show update destroy approve reject request_cancellation approve_cancellation]
+  before_action :require_admin, only: %i[update destroy approve reject approve_cancellation]
+  before_action :authorize_organizer, only: %i[request_cancellation]
 
   def index
     events = Event.includes(:space)
@@ -58,6 +58,26 @@ class EventsController < ApplicationController
 
     @event.rejected!
     UserMailer.booking_rejected(@event).deliver_later
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
+  def request_cancellation
+    unless @event.approved?
+      return render json: { error: "only approved events can be cancelled" }, status: :unprocessable_entity
+    end
+
+    @event.cancel_requested!
+    UserMailer.cancellation_requested(@event).deliver_later
+    render json: { event: event_response(@event) }, status: :ok
+  end
+
+  def approve_cancellation
+    unless @event.cancel_requested?
+      return render json: { error: "only cancel_requested events can be approved for cancellation" }, status: :unprocessable_entity
+    end
+
+    @event.cancelled!
+    UserMailer.cancellation_approved(@event).deliver_later
     render json: { event: event_response(@event) }, status: :ok
   end
 
