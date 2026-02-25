@@ -20,70 +20,59 @@ export function SpaceCard({ space, onBookSpace }: SpaceCardProps) {
   };
 
   return (
-    <div
-      className={`p-4 rounded-xl border-l-4 transition-all duration-200 hover:shadow-lg ${
-        isAvailable
-          ? 'bg-white border-l-teal-500 border-y border-r border-y-gray-200 border-r-gray-200'
-          : 'bg-gray-50 border-l-gray-300 border-y border-r border-y-gray-300 border-r-gray-300'
-      }`}
-    >
-      <div className="flex justify-between items-start mb-2">
-        <h3 className="text-lg font-semibold text-gray-900">{space.name}</h3>
-        {space.capacity && (
-          <span className="text-sm text-gray-500">定員: {space.capacity}名</span>
-        )}
+    <div className="bg-white rounded-xl border border-gray-200 p-5 hover:border-gray-300 hover:shadow-sm transition-all duration-150">
+      <div className="flex justify-between items-start mb-3">
+        <div>
+          <h3 className="text-base font-semibold text-gray-900">{space.name}</h3>
+          {space.description && (
+            <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{space.description}</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2 shrink-0 ml-3">
+          {space.capacity && (
+            <span className="text-xs text-gray-400 tabular-nums">{space.capacity}名</span>
+          )}
+          <span className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
+            isAvailable
+              ? 'bg-emerald-50 text-emerald-700'
+              : 'bg-red-50 text-red-600'
+          }`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${isAvailable ? 'bg-emerald-500' : 'bg-red-500'}`} />
+            {isAvailable ? '空き' : '使用中'}
+          </span>
+        </div>
       </div>
 
-      {space.description && (
-        <p className="text-sm text-gray-600 mb-3">{space.description}</p>
-      )}
-
-      <div className="mb-3">
+      <div className="text-xs text-gray-500 mb-4 min-h-[1.25rem]">
         {isAvailable ? (
-          <div>
-            <span className="inline-block px-2 py-1 text-sm font-medium text-green-700 bg-green-100 rounded">
-              空き
-            </span>
-            {space.next_event_at && (
-              <p className="text-sm text-gray-600 mt-2">
-                次の予約: {formatTime(space.next_event_at)}〜
-              </p>
-            )}
-          </div>
+          space.next_event_at && (
+            <span>次の予約: {formatTime(space.next_event_at)}〜</span>
+          )
         ) : (
-          <div>
-            <span className="inline-block px-2 py-1 text-sm font-medium text-red-700 bg-red-100 rounded">
-              使用中
-            </span>
-            {space.occupied_until && (
-              <p className="text-sm text-gray-600 mt-2">
-                〜{formatTime(space.occupied_until)}まで
-              </p>
-            )}
-            {space.current_event && (
-              <p className="text-sm text-gray-600 mt-1">
-                {space.current_event.name}
-              </p>
-            )}
-          </div>
+          <span>
+            {space.occupied_until && `〜${formatTime(space.occupied_until)}まで`}
+            {space.current_event && ` · ${space.current_event.name}`}
+          </span>
         )}
       </div>
 
       {isAvailable ? (
         <button
           onClick={() => onBookSpace(space.id)}
-          className="w-full px-4 py-2 text-sm font-medium text-white bg-teal-600 rounded-md hover:bg-teal-700 transition-colors"
+          className="w-full py-2 text-sm font-medium text-white bg-teal-500 rounded-lg hover:bg-teal-600 transition-colors"
         >
           このスペースを予約
         </button>
       ) : (
-        space.next_event_at && (
+        space.next_event_at ? (
           <button
             onClick={() => onBookSpace(space.id)}
-            className="w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+            className="w-full py-2 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
           >
             この時間以降で予約
           </button>
+        ) : (
+          <div className="w-full py-2 text-sm text-center text-gray-300">予約不可</div>
         )
       )}
     </div>
