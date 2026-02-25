@@ -15,33 +15,38 @@ export function Header() {
   };
 
   return (
-    <header className="bg-gradient-to-r from-teal-600 to-emerald-600 shadow-lg">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-14">
           <Link
             href="/"
-            className="flex items-center gap-2 text-xl font-bold text-white hover:text-teal-100 transition-colors"
+            className="flex items-center gap-2.5 text-gray-900 font-semibold text-sm tracking-tight hover:opacity-80 transition-opacity"
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            施設予約アプリ
+            <div className="w-7 h-7 bg-teal-500 rounded-lg flex items-center justify-center shrink-0">
+              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            施設予約
           </Link>
-          <nav className="flex items-center gap-4">
+
+          <nav className="flex items-center gap-3">
             {user ? (
               <>
-                <span className="text-teal-100 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {user.admin && (
-                    <span className="text-xs px-2 py-0.5 bg-amber-400 text-amber-900 rounded-full font-bold shadow-sm">
-                      管理者
+                    <span className="text-[11px] px-2 py-0.5 bg-violet-100 text-violet-700 rounded-md font-semibold tracking-wide">
+                      ADMIN
                     </span>
                   )}
-                  {user.name} さん
-                </span>
+                  <span className="text-sm text-gray-600 hidden sm:inline">
+                    {user.name}
+                  </span>
+                </div>
                 <button
                   onClick={handleLogout}
                   disabled={isLoading}
-                  className="px-4 py-2 text-sm font-medium text-white border border-white/40 rounded-md hover:bg-white/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="text-sm text-gray-500 hover:text-gray-900 transition-colors disabled:opacity-40 disabled:cursor-not-allowed px-3 py-1.5 rounded-lg hover:bg-gray-100"
                 >
                   ログアウト
                 </button>
@@ -50,13 +55,13 @@ export function Header() {
               <>
                 <Link
                   href="/login"
-                  className="px-4 py-2 text-sm font-medium text-white hover:text-teal-100 transition-colors"
+                  className="text-sm text-gray-600 hover:text-gray-900 transition-colors px-3 py-1.5"
                 >
                   ログイン
                 </Link>
                 <Link
                   href="/signup"
-                  className="px-4 py-2 text-sm font-medium text-teal-700 bg-white rounded-md hover:bg-teal-50 transition-colors"
+                  className="text-sm font-medium text-white bg-gray-900 px-3.5 py-1.5 rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   新規登録
                 </Link>
