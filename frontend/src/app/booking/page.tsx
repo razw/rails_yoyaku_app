@@ -98,6 +98,7 @@ function BookingContent() {
           selectedDate={selectedDate}
           selectedStartTime={selectedStartTime}
           onSpaceChange={handleSpaceChange}
+          isAdmin={user?.admin}
         />
       </div>
       <div className="lg:col-span-1">

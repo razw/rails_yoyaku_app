@@ -12,6 +12,7 @@ interface BookingFormProps {
   selectedDate?: Date;
   selectedStartTime?: Date;
   onSpaceChange?: (spaceId: number) => void;
+  isAdmin?: boolean;
 }
 
 export interface BookingFormData {
@@ -30,6 +31,7 @@ export function BookingForm({
   selectedDate,
   selectedStartTime,
   onSpaceChange,
+  isAdmin,
 }: BookingFormProps) {
   const [formData, setFormData] = useState<BookingFormData>({
     name: "",
@@ -111,7 +113,7 @@ export function BookingForm({
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-gray-900 mb-4">予約を申請</h2>
+      <h2 className="text-2xl font-bold text-gray-900 mb-4">{isAdmin ? "予約する" : "予約を申請"}</h2>
 
       <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
         {error && (
@@ -240,7 +242,7 @@ export function BookingForm({
               disabled={loading}
               className="px-4 py-2 text-white bg-teal-600 rounded-md hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {loading ? "申請中..." : "予約を申請"}
+              {loading ? "予約中..." : isAdmin ? "予約する" : "予約を申請"}
             </button>
           </div>
         </form>

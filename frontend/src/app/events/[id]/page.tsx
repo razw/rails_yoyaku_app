@@ -314,7 +314,7 @@ export default function EventDetailPage({
                         disabled={requestingCancellation}
                         className="px-4 py-2 text-orange-700 bg-white border border-orange-300 rounded-md hover:bg-orange-50 disabled:opacity-50"
                       >
-                        {requestingCancellation ? "申請中..." : "キャンセル申請"}
+                        {requestingCancellation ? "キャンセル中..." : user.admin ? "キャンセルする" : "キャンセル申請"}
                       </button>
                     </div>
                   )}
