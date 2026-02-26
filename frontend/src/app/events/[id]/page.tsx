@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
 import { eventsApi, homeApi, ApiError } from "@/lib/api";
 import type { EventResponse, HomeResponse } from "@/types";
 
@@ -26,6 +27,7 @@ export default function EventDetailPage({
   const { id } = use(params);
   const router = useRouter();
   const { user } = useAuth();
+  const { showToast } = useToast();
   const [eventData, setEventData] = useState<EventResponse["event"] | null>(null);
   const [homeData, setHomeData] = useState<HomeResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -72,6 +74,7 @@ export default function EventDetailPage({
 
     try {
       await eventsApi.deleteEvent(eventData.id);
+      showToast("削除しました");
       router.push("/");
     } catch (err) {
       if (err instanceof ApiError) {
@@ -98,6 +101,7 @@ export default function EventDetailPage({
     try {
       const data = await eventsApi.approveEvent(eventData.id);
       setEventData(data.event);
+      showToast("承認しました");
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -116,6 +120,7 @@ export default function EventDetailPage({
     try {
       const data = await eventsApi.requestCancellation(eventData.id);
       setEventData(data.event);
+      showToast(user?.admin ? "キャンセルしました" : "キャンセルを申請しました");
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -134,6 +139,7 @@ export default function EventDetailPage({
     try {
       const data = await eventsApi.approveCancellation(eventData.id);
       setEventData(data.event);
+      showToast("キャンセルを承認しました");
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);
@@ -152,6 +158,7 @@ export default function EventDetailPage({
     try {
       const data = await eventsApi.rejectEvent(eventData.id);
       setEventData(data.event);
+      showToast("却下しました");
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.message);

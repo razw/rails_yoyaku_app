@@ -6,11 +6,13 @@ import { Header } from "@/components/Header";
 import { BookingForm, type BookingFormData } from "@/components/BookingForm";
 import { TimelineSchedule } from "@/components/TimelineSchedule";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/contexts/ToastContext";
 import { homeApi, eventsApi } from "@/lib/api";
 import type { HomeResponse } from "@/types";
 
 function BookingContent() {
   const { user, isLoading: authLoading } = useAuth();
+  const { showToast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -65,6 +67,7 @@ function BookingContent() {
         space_id: bookingData.space_id,
       },
     });
+    showToast(user?.admin ? "予約しました" : "予約を申請しました");
   };
 
   const handleCancel = () => {
